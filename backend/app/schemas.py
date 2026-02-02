@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Any
 from datetime import datetime
 
 class UserCreate(BaseModel):
     name: str
-    email: EmailStr
+    email: str
     password: str
     age: Optional[int] = None
     gender: Optional[str] = None
@@ -18,18 +18,17 @@ class LoginRequest(BaseModel):
     password: str
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: str
     name: str
-    email: EmailStr
+    email: str
     age: Optional[int] = None
     gender: Optional[str] = None
     height_cm: Optional[float] = None
     weight_kg: Optional[float] = None
     goal: Optional[str] = None
     activity_level: Optional[str] = None
-
-    class Config:
-        orm_mode = True
 
 class Token(BaseModel):
     access_token: str
