@@ -117,15 +117,3 @@ export default function Login() {
     </div>
   )
 }
-          {error && <div className="text-red-400 text-sm">{error}</div>}
-          <button type="submit" disabled={loading} className="w-full bg-white text-black py-2 rounded font-semibold hover:bg-gray-200 disabled:opacity-50">
-            {loading ? 'Loading...' : 'Login'}
-          </button>
-        </form>
-        <p className="text-center text-gray-400 mt-4">
-          No account? <a href="/register" className="text-white font-semibold">Register</a>
-        </p>
-      </div>
-    </div>
-  )
-}
