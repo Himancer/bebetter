@@ -105,13 +105,13 @@ export default function Login() {
           </div>
 
           <div className="text-center">
-            <p className="text-gray-400">Don't have an account? <Link href="/register"><a className="text-blue-400 hover:text-blue-300">Sign up</a></Link></p>
+            <p className="text-gray-400">Don't have an account? <Link href="/register" className="text-blue-400 hover:text-blue-300">Sign up</Link></p>
           </div>
         </div>
 
         {/* Footer */}
         <div className="text-center mt-8 text-gray-500 text-sm">
-          <Link href="/"><a className="hover:text-gray-400">← Back to Home</a></Link>
+          <Link href="/" className="hover:text-gray-400">← Back to Home</Link>
         </div>
       </div>
     </div>

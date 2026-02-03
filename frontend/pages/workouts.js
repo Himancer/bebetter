@@ -261,12 +261,3 @@ export default function Workouts() {
     </div>
   )
 }
-            <div key={w.id} className="bg-white/5 p-4 rounded border border-white/10">
-              <p className="font-semibold">{w.duration} min • {w.calories_burned} kcal</p>
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
-  )
-}

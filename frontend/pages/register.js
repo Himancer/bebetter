@@ -300,35 +300,9 @@ export default function Register() {
           </form>
 
           <div className="text-center pt-4">
-            <p className="text-gray-400">Already have an account? <Link href="/login"><a className="text-blue-400 hover:text-blue-300">Sign in</a></Link></p>
+            <p className="text-gray-400">Already have an account? <Link href="/login" className="text-blue-400 hover:text-blue-300">Sign in</Link></p>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-              <option value="maintenance">Maintenance</option>
-              <option value="fat_loss">Fat Loss</option>
-              <option value="muscle_gain">Muscle Gain</option>
-            </select>
-          </div>
-          <div>
-            <select name="activity_level" value={form.activity_level} onChange={handleChange} className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white">
-              <option value="sedentary">Sedentary</option>
-              <option value="light">Light</option>
-              <option value="moderate">Moderate</option>
-              <option value="active">Active</option>
-              <option value="very_active">Very Active</option>
-            </select>
-          </div>
-          {error && <div className="text-red-400 text-sm">{error}</div>}
-          <button type="submit" disabled={loading} className="w-full bg-white text-black py-2 rounded font-semibold hover:bg-gray-200 disabled:opacity-50">
-            {loading ? 'Creating...' : 'Create Account'}
-          </button>
-        </form>
-        <p className="text-center text-gray-400 mt-4">
-          Already have account? <a href="/login" className="text-white font-semibold">Login</a>
-        </p>
       </div>
     </div>
   )

@@ -43,23 +43,16 @@ export default function Layout({ children }) {
       >
         <div className="p-6 flex flex-col h-full">
           {/* Logo */}
-          <Link href="/dashboard">
-            <a className="text-2xl font-bold mb-8 block hover:text-blue-400 transition">
-              🏋️ BeBetter
-            </a>
+          <Link href="/dashboard" className="text-2xl font-bold mb-8 block hover:text-blue-400 transition">
+            🏋️ BeBetter
           </Link>
 
           {/* Navigation Items */}
           <nav className="flex-1 space-y-2">
             {navItems.map(({ icon: Icon, label, path }) => (
-              <Link key={path} href={path}>
-                <a
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${isActive(path)}`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <Icon size={20} />
-                  <span>{label}</span>
-                </a>
+              <Link key={path} href={path} className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${isActive(path)}`} onClick={() => setSidebarOpen(false)}>
+                <Icon size={20} />
+                <span>{label}</span>
               </Link>
             ))}
           </nav>
