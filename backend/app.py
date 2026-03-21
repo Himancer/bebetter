@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from models import db
 from routes.player import player_bp
@@ -10,7 +10,7 @@ from routes.chat import chat_bp
 import os
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -31,6 +31,18 @@ def create_app():
     with app.app_context():
         db.create_all()
         _seed_data()
+
+    # Serve React frontend for non-API routes
+    @app.route('/')
+    def serve_index():
+        return app.send_static_file('index.html')
+
+    @app.errorhandler(404)
+    def not_found(e):
+        # For client-side routing, serve index.html for non-API routes
+        if not request.path.startswith('/api'):
+            return app.send_static_file('index.html')
+        return {'error': 'Not found'}, 404
 
     return app
 
@@ -72,7 +84,8 @@ def _seed_data():
     print("✅ Database seeded successfully")
 
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     print("🎮 beBetter Backend starting on http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
