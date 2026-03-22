@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Scale, Dumbbell, Utensils, Scroll } from 'lucide-react';
+import { LayoutDashboard, Scale, Dumbbell, Utensils, Scroll, LogOut } from 'lucide-react';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Hub', icon: LayoutDashboard },
@@ -11,6 +11,11 @@ const NAV_ITEMS = [
 ];
 
 export default function Navbar() {
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -47,9 +52,19 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="mt-auto px-3 text-xs text-gray-700 font-mono">
-          <div>1.01^365 = 37.78x</div>
-          <div className="text-gray-800">1% daily = 37x better</div>
+        <div className="mt-auto px-3 space-y-4">
+          <button 
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all text-red-500 hover:text-white hover:bg-red-500/20 font-mono tracking-wider"
+            style={{ border: '1px solid #ef444444' }}
+          >
+            <LogOut size={16} />
+            EXIT SYSTEM
+          </button>
+          <div className="text-xs text-gray-700 font-mono pt-4 border-t border-gray-900">
+            <div>1.01^365 = 37.78x</div>
+            <div className="text-gray-800">1% daily = 37x better</div>
+          </div>
         </div>
       </nav>
 
@@ -76,6 +91,13 @@ export default function Navbar() {
               )}
             </NavLink>
           ))}
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs transition-all text-red-500/70 hover:text-red-500"
+          >
+            <LogOut size={20} />
+            <span>Exit</span>
+          </button>
         </div>
       </nav>
     </>

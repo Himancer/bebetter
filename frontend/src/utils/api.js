@@ -1,12 +1,23 @@
 const BASE = '/api';
 
 async function req(method, path, body) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-  };
+  const token = localStorage.getItem('token');
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
+  
   const res = await fetch(BASE + path, opts);
+  
+  if (res.status === 401 && !path.startsWith('/auth')) {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+    return null;
+  }
+  
   if (!res.ok) {
     const err = await res.text();
     throw new Error(err || `HTTP ${res.status}`);
@@ -16,6 +27,10 @@ async function req(method, path, body) {
 }
 
 export const api = {
+  // Auth
+  login: (data) => req('POST', '/auth/login', data),
+  register: (data) => req('POST', '/auth/register', data),
+
   // Player
   getPlayer: () => req('GET', '/player'),
   updatePlayer: (data) => req('PUT', '/player', data),
