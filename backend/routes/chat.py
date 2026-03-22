@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from models import db, ChatMessage, Player, WeightLog, Workout, MealLog
-from datetime import date
 import os
 import requests
 
@@ -10,7 +9,7 @@ GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 
 def get_groq_response(message: str) -> str:
     if not GROQ_API_KEY:
-        return "Bro, GROQ_API_KEY missing hai. System check kar pehle."
+        return "Bro, GROQ_API_KEY missing hai. Neon DB is set, but API is not. Check Render settings."
 
     system_prompt = "You are Future Himanshu — 70kg, fit, successful AI engineer. You talk in Hinglish. You reference Solo Leveling and Ab Nahi To Kab. You give tough love motivation."
 
@@ -41,7 +40,7 @@ def get_groq_response(message: str) -> str:
 @chat_bp.route('/chat', methods=['GET'])
 def get_chat_history():
     limit = request.args.get('limit', 50, type=int)
-    messages = ChatMessage.query.order_by(ChatMessage.created_at.desc()).limit(limit).all()
+    messages = ChatMessage.query.filter_by(user_id=request.user.id).order_by(ChatMessage.created_at.desc()).limit(limit).all()
     return jsonify([m.to_dict() for m in reversed(messages)])
 
 @chat_bp.route('/chat', methods=['POST'])
@@ -51,15 +50,12 @@ def send_message():
     if not user_message:
         return jsonify({'error': 'Message required'}), 400
 
-    # Save user message
-    user_msg = ChatMessage(role='user', content=user_message)
+    user_msg = ChatMessage(user_id=request.user.id, role='user', content=user_message)
     db.session.add(user_msg)
-
-    # Generate response via Groq
+    
     response_text = get_groq_response(user_message)
-
-    # Save assistant message
-    assistant_msg = ChatMessage(role='assistant', content=response_text)
+    
+    assistant_msg = ChatMessage(user_id=request.user.id, role='assistant', content=response_text)
     db.session.add(assistant_msg)
     db.session.commit()
 
@@ -70,6 +66,6 @@ def send_message():
 
 @chat_bp.route('/chat/clear', methods=['DELETE'])
 def clear_chat():
-    ChatMessage.query.delete()
+    ChatMessage.query.filter_by(user_id=request.user.id).delete()
     db.session.commit()
     return jsonify({'message': 'Chat cleared'})

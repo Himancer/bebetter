@@ -2,11 +2,10 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
-from models import db, User
+from models import db, User, Player
 import os
 
 auth_bp = Blueprint('auth', __name__)
-
 SECRET_KEY = os.environ.get('SECRET_KEY', 'solo-leveling-secret-key')
 
 @auth_bp.route('/auth/register', methods=['POST'])
@@ -21,6 +20,10 @@ def register():
     hashed_password = generate_password_hash(data['password'])
     new_user = User(username=data['username'], password_hash=hashed_password)
     db.session.add(new_user)
+    db.session.flush()
+    
+    new_player = Player(user_id=new_user.id, name=data['username'], streak=0, level=1, xp=0, total_xp=0, rank='E')
+    db.session.add(new_player)
     db.session.commit()
     
     return jsonify({'message': 'Registered successfully'}), 201
@@ -32,7 +35,6 @@ def login():
         return jsonify({'message': 'Missing credentials'}), 400
         
     user = User.query.filter_by(username=data['username']).first()
-    
     if not user or not check_password_hash(user.password_hash, data['password']):
         return jsonify({'message': 'Invalid credentials'}), 401
         
@@ -40,5 +42,4 @@ def login():
         'user_id': user.id,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
     }, SECRET_KEY, algorithm='HS256')
-    
     return jsonify({'token': token})

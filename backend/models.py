@@ -1,31 +1,41 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, date
+from datetime import datetime
+import pytz
 
 db = SQLAlchemy()
 
+def get_ist_now():
+    return datetime.now(pytz.timezone('Asia/Kolkata'))
+
+def get_ist_date():
+    return get_ist_now().date()
+
 class User(db.Model):
-    __tablename__ = "user"
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
+    player = db.relationship('Player', backref='user', uselist=False, cascade='all, delete-orphan')
 
 class Player(db.Model):
     __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False, default='Himanshu')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False, default='Player')
     level = db.Column(db.Integer, default=1)
     xp = db.Column(db.Integer, default=0)
     total_xp = db.Column(db.Integer, default=0)
     rank = db.Column(db.String(10), default='E')
     streak = db.Column(db.Integer, default=0)
-    last_active = db.Column(db.Date, default=date.today)
+    last_active = db.Column(db.Date, default=get_ist_date)
     goal_weight = db.Column(db.Float, default=70.0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
 
     def to_dict(self):
         return {
             'id': self.id,
+            'user_id': self.user_id,
             'name': self.name,
             'level': self.level,
             'xp': self.xp,
@@ -38,14 +48,14 @@ class Player(db.Model):
             'xp_progress': self.xp % 100,
         }
 
-
 class WeightLog(db.Model):
     __tablename__ = 'weight_log'
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     weight = db.Column(db.Float, nullable=False)
-    date = db.Column(db.Date, default=date.today, nullable=False)
+    date = db.Column(db.Date, default=get_ist_date, nullable=False)
     note = db.Column(db.String(200))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
 
     def to_dict(self):
         return {
@@ -55,17 +65,17 @@ class WeightLog(db.Model):
             'note': self.note,
         }
 
-
 class Workout(db.Model):
     __tablename__ = 'workout'
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(200), nullable=False)
-    date = db.Column(db.Date, default=date.today, nullable=False)
+    date = db.Column(db.Date, default=get_ist_date, nullable=False)
     duration_minutes = db.Column(db.Integer, default=0)
     xp_earned = db.Column(db.Integer, default=50)
     completed = db.Column(db.Boolean, default=False)
     notes = db.Column(db.String(500))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
     exercises = db.relationship('Exercise', backref='workout', lazy=True, cascade='all, delete-orphan')
 
     def to_dict(self):
@@ -80,7 +90,6 @@ class Workout(db.Model):
             'exercises': [e.to_dict() for e in self.exercises],
         }
 
-
 class Exercise(db.Model):
     __tablename__ = 'exercise'
     id = db.Column(db.Integer, primary_key=True)
@@ -89,7 +98,7 @@ class Exercise(db.Model):
     sets = db.Column(db.Integer, default=3)
     reps = db.Column(db.Integer, default=10)
     weight_kg = db.Column(db.Float, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
 
     def to_dict(self):
         return {
@@ -101,10 +110,10 @@ class Exercise(db.Model):
             'weight_kg': self.weight_kg,
         }
 
-
 class MealLog(db.Model):
     __tablename__ = 'meal_log'
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     food_name = db.Column(db.String(200), nullable=False)
     calories = db.Column(db.Integer, default=0)
     protein = db.Column(db.Float, default=0)
@@ -112,9 +121,9 @@ class MealLog(db.Model):
     fat = db.Column(db.Float, default=0)
     quantity = db.Column(db.Float, default=1.0)
     unit = db.Column(db.String(50), default='serving')
-    meal_type = db.Column(db.String(50), default='lunch')  # breakfast, lunch, dinner, snack
-    date = db.Column(db.Date, default=date.today, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    meal_type = db.Column(db.String(50), default='lunch')
+    date = db.Column(db.Date, default=get_ist_date, nullable=False)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
 
     def to_dict(self):
         return {
@@ -130,18 +139,18 @@ class MealLog(db.Model):
             'date': self.date.isoformat(),
         }
 
-
 class Quest(db.Model):
     __tablename__ = 'quest'
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(500))
     xp_reward = db.Column(db.Integer, default=25)
-    quest_type = db.Column(db.String(20), default='daily')  # daily, weekly, boss
+    quest_type = db.Column(db.String(20), default='daily')
     completed = db.Column(db.Boolean, default=False)
-    date = db.Column(db.Date, default=date.today, nullable=False)
+    date = db.Column(db.Date, default=get_ist_date, nullable=False)
     icon = db.Column(db.String(50), default='⚔️')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
 
     def to_dict(self):
         return {
@@ -155,13 +164,13 @@ class Quest(db.Model):
             'icon': self.icon,
         }
 
-
 class ChatMessage(db.Model):
     __tablename__ = 'chat_message'
     id = db.Column(db.Integer, primary_key=True)
-    role = db.Column(db.String(20), nullable=False)  # user or assistant
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
 
     def to_dict(self):
         return {
