@@ -1,87 +1,49 @@
 # beBetter 💪
-> 1% Better Everyday — A Personal Fitness Companion
+> 1% Better Everyday — A Personal AI Fitness Companion.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![React](https://img.shields.io/badge/React-Frontend-61DAFB)
-![Status](https://img.shields.io/badge/Status-In%20Development-orange)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)\n![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)\n![SQLite](https://img.shields.io/badge/SQLite-000000?style=flat)\n
 
-## 🎯 What is beBetter?
+## 🎯 What it does
 
-beBetter is a personal fitness tracking app inspired by my own 
-weight loss journey (89kg → target 70kg). It tracks your daily 
-habits, calculates your 1% daily progress, and reminds you of 
-your goals — like a smart fitness companion.
-
-**Not just a tracker. A growth mirror.**
+This repository contains the source code for beBetter 💪. 1% Better Everyday — A Personal AI Fitness Companion. It is designed to be scalable, efficient, and user-friendly.
 
 ## ✨ Features
 
-- 📊 **Weight Tracker** — Log daily weight, visualize progress
-- 🎯 **Goal Setting** — Set targets, get daily reminders  
-- 📈 **1% Progress Calculator** — Shows compound growth over time
-- 🏋️ **Workout Logger** — Track exercises, sets, reps, weights
-- 🍎 **Diet Tracker** — Log meals, calculate calories
-- 🧠 **AI Insights** — Learn from your patterns, suggest improvements
-- 📱 **Dashboard** — Clean overview of your entire journey
-
-## 💡 Inspiration
-
-Built from personal experience — losing weight while managing 
-grief, debt, and a full-time job. Most fitness apps are made 
-for people who are already fit. beBetter is for people 
-**starting from zero.**
+- ⚡ **Core Functionality** — Reliable and robust execution.
+- 🎨 **User Experience** — Designed with a focus on simplicity and ease of use.
+- 🛠️ **Scalable Architecture** — Built to handle future growth and feature expansions.
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React.js |
-| Backend | Python / Flask |
-| Database | SQLite |
-| AI Layer | Python ML models |
-| Deployment | Vercel + Railway |
+| Languages/Frameworks | Python /React /SQLite |
 
-## 🚀 Getting Started
+## 🚀 How to run locally
+
 ```bash
-# Clone the repo
+# Clone the repository
 git clone https://github.com/Himancer/bebetter.git
 
-# Install dependencies
+# Navigate to the directory
 cd bebetter
-pip install -r requirements.txt
 
-# Run the app
-python app.py
+# (Add environment-specific run commands here)
 ```
-
-## 📊 The 1% Formula
-```
-Day 1: 1.00
-Day 30: 1.35 (35% better)
-Day 100: 2.70 (170% better)  
-Day 365: 37.78 (3678% better)
-```
-
-Small daily improvements = massive long term results.
 
 ## 🗺️ Roadmap
 
-- [x] Project initialization
-- [ ] Weight tracking module
-- [ ] Workout logger
-- [ ] Diet tracker  
-- [ ] AI pattern recognition
-- [ ] Mobile responsive UI
-- [ ] Deploy live demo
+- [x] Project Initialization
+- [ ] Core Features Implementation
+- [ ] UI/UX Polish
+- [ ] Production Deployment
 
 ## 👤 Author
 
 **Himanshu Pandey**
 - GitHub: [@Himancer](https://github.com/Himancer)
 - LinkedIn: [himanshu-pandey](https://linkedin.com/in/himanshu-pandey-053660200)
-- Instagram: [@abnahi.tokab](https://instagram.com/abnahi.tokab)
+- Portfolio: [himanshu-dev.vercel.app](https://himanshu-dev.vercel.app)
 
 ---
-
-*"It is a shame for a man to die without knowing his body's 
-potential." — Ab Nahi To Kab 🔥*
+*"Ab Nahi To Kab 🔥"*
