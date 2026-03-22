@@ -7,6 +7,8 @@ from routes.workout import workout_bp
 from routes.diet import diet_bp
 from routes.quest import quest_bp
 from routes.chat import chat_bp
+from routes.auth import auth_bp
+from auth_middleware import check_jwt
 import os
 
 def create_app():
@@ -27,6 +29,8 @@ def create_app():
     app.register_blueprint(diet_bp, url_prefix='/api')
     app.register_blueprint(quest_bp, url_prefix='/api')
     app.register_blueprint(chat_bp, url_prefix='/api')
+    app.register_blueprint(auth_bp, url_prefix='/api')
+    app.before_request(check_jwt)
 
     with app.app_context():
         db.create_all()
