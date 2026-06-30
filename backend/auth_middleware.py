@@ -1,9 +1,7 @@
 from flask import request, jsonify
 import jwt
-import os
 from models import User
-
-SECRET_KEY = os.environ.get('SECRET_KEY', 'solo-leveling-secret-key')
+from config import SECRET_KEY
 
 def check_jwt():
     # Only protect /api routes, exclude /api/auth

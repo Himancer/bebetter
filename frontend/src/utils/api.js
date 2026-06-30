@@ -1,5 +1,9 @@
 const BASE = '/api';
 
+// Module-level guard so multiple concurrent 401s only trigger ONE redirect,
+// instead of each failed request hard-reloading the page (the "reload storm").
+let redirectingToLogin = false;
+
 async function req(method, path, body) {
   const token = localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json' };
@@ -14,7 +18,10 @@ async function req(method, path, body) {
   
   if (res.status === 401 && !path.startsWith('/auth')) {
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    if (!redirectingToLogin && window.location.pathname !== '/login') {
+      redirectingToLogin = true;
+      window.location.replace('/login');
+    }
     return null;
   }
   
@@ -61,8 +68,20 @@ export const api = {
   getFoods: (q) => req('GET', `/diet/foods${q ? `?q=${encodeURIComponent(q)}` : ''}`),
   getDietHistory: (limit = 7) => req('GET', `/diet/history?limit=${limit}`),
 
-  // Quests
-  getQuests: () => req('GET', '/quest'),
+  // Quests — backend returns a flat array of quests; normalize to the
+  // { daily, boss, progress } shape the UI components expect.
+  getQuests: async () => {
+    const data = await req('GET', '/quest');
+    const list = Array.isArray(data) ? data : (data && data.daily) || [];
+    return {
+      daily: list.filter(q => q.quest_type !== 'boss'),
+      boss: list.filter(q => q.quest_type === 'boss'),
+      progress: {
+        completed: list.filter(q => q.completed).length,
+        total: list.length,
+      },
+    };
+  },
   completeQuest: (id) => req('POST', `/quest/${id}/complete`),
 
   // Chat

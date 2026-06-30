@@ -3,10 +3,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 from models import db, User, Player
-import os
+from config import SECRET_KEY
 
 auth_bp = Blueprint('auth', __name__)
-SECRET_KEY = os.environ.get('SECRET_KEY', 'solo-leveling-secret-key')
 
 @auth_bp.route('/auth/register', methods=['POST'])
 def register():

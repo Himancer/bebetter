@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import { Dumbbell, ShieldAlert, Zap } from 'lucide-react';
 
 export default function AuthPage() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -24,7 +26,7 @@ export default function AuthPage() {
         const res = await api.login({ username, password });
         if (res && res.token) {
           localStorage.setItem('token', res.token);
-          window.location.href = '/'; 
+          navigate('/');
         }
       } else {
         await api.register({ username, password });

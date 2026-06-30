@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Scale, Dumbbell, Utensils, Scroll, LogOut } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -11,9 +11,10 @@ const NAV_ITEMS = [
 ];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   return (
