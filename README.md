@@ -33,7 +33,7 @@ beBetter reframes fitness as a role-playing game. You log your **workouts, meals
 | Backend | Python, Flask, Flask-SQLAlchemy, Flask-CORS |
 | Auth | PyJWT (HS256), werkzeug password hashing |
 | Database | SQLite (local) · PostgreSQL (production) |
-| AI | Groq API — `llama3-8b-8192` |
+| AI | Groq API — model configurable via `GROQ_MODEL` (default: `openai/gpt-oss-20b`) |
 | Frontend | React 19, Vite, React Router, Tailwind CSS, Recharts |
 | Deploy | Render (single service via `render.yaml`), Gunicorn |
 

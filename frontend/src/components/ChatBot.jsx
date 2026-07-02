@@ -29,7 +29,7 @@ export default function ChatBot() {
           setMessages([{
             id: 0,
             role: 'assistant',
-            content: "Yo! Main hoon BetterMe — tera future self. 89 se 70 tak ka safar complete kar chuka hoon. Ab bata, kya poochna hai? 💪",
+            content: "Yo! Main hoon BetterMe — tera future self. Jo transformation tu soch raha hai, maine complete kar liya hai. Ab bata, kya poochna hai? 💪",
           }]);
         } else {
           setMessages(msgs);
