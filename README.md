@@ -13,7 +13,7 @@
 
 beBetter reframes fitness as a role-playing game. You log your **workouts, meals, and weight**, and every action earns **XP** that levels you up and raises your **rank (E → S)**. Daily **quests** auto-generate and complete themselves as you hit your goals, and a streak system keeps you consistent. An **AI coach** — powered by Groq's Llama 3 — gives you tough-love motivation when you need a push.
 
-> _Demo: deploying to Render — live link coming soon._
+> **🚀 Live demo: [bebetter-umjn.onrender.com](https://bebetter-umjn.onrender.com/)** — register free and chat with the AI coach _(free-tier host: first load after idle takes ~50s)_
 
 ## ✨ Features
 
