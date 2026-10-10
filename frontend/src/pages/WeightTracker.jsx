@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import WeightChart from '../components/WeightChart';
 import XPNotification from '../components/XPNotification';
-import { Scale, Trophy, Plus } from 'lucide-react';
+import { Scale, Trophy, Plus, Lock } from 'lucide-react';
 
 export default function WeightTracker() {
   const [weight, setWeight] = useState('');
@@ -49,7 +49,7 @@ export default function WeightTracker() {
         <Scale size={24} className="text-cyan-400" />
         <div>
           <h1 className="text-2xl font-black text-white">Weight Tracker</h1>
-          <p className="text-gray-500 text-sm">Track the boss battle: 89kg → 70kg</p>
+          <p className="text-gray-500 text-sm">Track a trend at your own pace.</p>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export default function WeightTracker() {
         <div className="card">
           <h3 className="text-sm font-bold text-gray-400 tracking-wider mb-4 flex items-center gap-2">
             <Trophy size={14} className="text-yellow-400" />
-            BOSS MILESTONE ACHIEVEMENTS
+            MILESTONES
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {milestones.milestones.map(m => (
@@ -133,7 +133,7 @@ export default function WeightTracker() {
                   background: m.achieved ? '#fbbf2411' : '#1a1a3e22',
                   border: `1px solid ${m.achieved ? '#fbbf2444' : '#1a1a3e'}`,
                 }}>
-                <div className="text-2xl mb-1">{m.achieved ? '🏆' : '🔒'}</div>
+                <div className="milestone-icon">{m.achieved ? <Trophy size={17} /> : <Lock size={15} />}</div>
                 <div className={`text-sm font-bold font-mono ${m.achieved ? 'text-yellow-400' : 'text-gray-600'}`}>
                   -{m.kg_lost}kg
                 </div>

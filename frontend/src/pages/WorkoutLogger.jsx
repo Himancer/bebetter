@@ -11,10 +11,10 @@ function DungeonClearBanner({ workout, onDone }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/80">
-      <div className="text-center dungeon-clear p-8 rounded-2xl"
+      <div className="text-center system-completion-card dungeon-clear p-8 rounded-2xl"
         style={{ background: 'linear-gradient(135deg, #7c3aed22, #00d4ff22)', border: '2px solid #00d4ff', boxShadow: '0 0 60px #00d4ff33' }}>
-        <div className="text-6xl mb-3">⚔️</div>
-        <div className="text-3xl font-black text-white font-mono mb-1">DUNGEON CLEARED!</div>
+        <ShieldCheck size={26} className="text-cyan-400" />
+        <div className="text-3xl font-black text-white font-mono mb-1">SESSION COMPLETE</div>
         <div className="text-cyan-400 text-lg">{workout?.name}</div>
         <div className="flex items-center justify-center gap-2 mt-3">
           <Zap size={18} className="text-yellow-400" />
@@ -102,8 +102,8 @@ export default function WorkoutLogger() {
         <div className="flex items-center gap-3">
           <Dumbbell size={24} className="text-cyan-400" />
           <div>
-            <h1 className="text-2xl font-black text-white">Dungeon Logger</h1>
-            <p className="text-gray-500 text-sm">Enter. Train. Clear.</p>
+          <h1 className="text-2xl font-black text-white">Hunter training</h1>
+            <p className="text-gray-500 text-sm">Record the work. Build consistency.</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -114,7 +114,7 @@ export default function WorkoutLogger() {
           <button onClick={() => setShowNew(!showNew)}
             className="px-3 py-2 rounded-lg text-sm font-bold text-black flex items-center gap-1"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)' }}>
-            <Plus size={16} /> New Dungeon
+            <Plus size={16} /> New session
           </button>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function WorkoutLogger() {
       {/* Templates */}
       {showTemplates && (
         <div className="card space-y-2">
-          <h3 className="text-sm font-bold text-gray-400 tracking-wider mb-3">PRE-BUILT DUNGEONS</h3>
+          <h3 className="text-sm font-bold text-gray-400 tracking-wider mb-3">TRAINING TEMPLATES</h3>
           {templates.map((t, i) => (
             <div key={i} onClick={() => loadTemplate(t)}
               className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-white/5 border border-gray-800 hover:border-gray-700 transition-all">
@@ -136,11 +136,11 @@ export default function WorkoutLogger() {
       {/* New workout form */}
       {showNew && (
         <div className="card space-y-4">
-          <h3 className="text-sm font-bold text-gray-400 tracking-wider">NEW DUNGEON</h3>
+          <h3 className="text-sm font-bold text-gray-400 tracking-wider">NEW TRAINING SESSION</h3>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Dungeon Name</label>
+              <label className="text-xs text-gray-500 mb-1 block">Session name</label>
               <input value={newWorkout.name} onChange={e => setNewWorkout(p => ({ ...p, name: e.target.value }))}
                 placeholder="e.g. Push Day" className="w-full px-3 py-2 rounded-lg text-white text-sm outline-none"
                 style={{ background: '#13132d', border: '1px solid #1a1a3e' }} />
@@ -197,7 +197,7 @@ export default function WorkoutLogger() {
             <button onClick={createWorkout} disabled={!newWorkout.name}
               className="flex-1 py-2.5 rounded-lg font-bold text-sm text-white transition-all"
               style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)' }}>
-              ENTER DUNGEON
+              SAVE SESSION
             </button>
             <button onClick={() => setShowNew(false)}
               className="px-4 py-2.5 rounded-lg text-sm text-gray-500 border border-gray-800">
@@ -246,8 +246,8 @@ function WorkoutCard({ workout, onComplete, onDelete }) {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-white font-medium">{workout.name}</span>
             {workout.completed && (
-              <span className="text-xs font-mono px-2 py-0.5 rounded" style={{ background: '#00ff8822', color: '#00ff88' }}>
-                CLEARED
+              <span className="text-xs font-mono px-2 py-0.5 rounded system-completed-tag">
+                COMPLETE
               </span>
             )}
           </div>
@@ -265,7 +265,7 @@ function WorkoutCard({ workout, onComplete, onDelete }) {
             <button onClick={() => onComplete(workout)}
               className="px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-all hover:opacity-80"
               style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)' }}>
-              CLEAR ⚔️
+              COMPLETE
             </button>
           )}
           <button onClick={() => setExpanded(!expanded)} className="text-gray-600 hover:text-gray-400 p-1">

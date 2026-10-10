@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { Shield, Flame, Zap } from 'lucide-react';
-const COLORS = { E: '#94a2ae', D: '#72e2dc', C: '#b8e88b', B: '#ffbd69', A: '#ff9a78', S: '#b8a2ff' };
+const COLORS = { E: '#90a8bb', D: '#78bce0', C: '#76c9b2', B: '#c6aa74', A: '#ce8d83', S: '#9b9de0' };
 export default function PlayerCard({ player, compact = false }) {
   if (!player) return null;
   const color = COLORS[player.rank] || COLORS.E;

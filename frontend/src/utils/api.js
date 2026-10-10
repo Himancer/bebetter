@@ -39,6 +39,7 @@ export const api = {
   register: (data) => req('POST', '/auth/register', data),
 
   // Player
+  getAccount: () => req('GET', '/account'),
   getPlayer: () => req('GET', '/player'),
   updatePlayer: (data) => req('PUT', '/player', data),
   getStats: () => req('GET', '/player/stats'),

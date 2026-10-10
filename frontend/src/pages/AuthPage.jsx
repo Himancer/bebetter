@@ -5,21 +5,22 @@ import { Sparkles, ShieldAlert, ArrowRight, Check } from 'lucide-react';
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true), [username, setUsername] = useState(''), [password, setPassword] = useState('');
+  const [isLogin, setIsLogin] = useState(true), [username, setUsername] = useState(''), [playerName, setPlayerName] = useState(''), [password, setPassword] = useState('');
   const [error, setError] = useState(''), [success, setSuccess] = useState(''), [loading, setLoading] = useState(false);
 
   const handleSubmit = async e => {
     e.preventDefault(); setError(''); setSuccess('');
-    if (!username.trim() || !password) { setError('Enter both a username and password to continue.'); return; }
+    if (!username.trim() || !password || (!isLogin && !playerName.trim())) { setError(isLogin ? 'Enter both a username and password to continue.' : 'Enter a player name, username, and password to continue.'); return; }
     if (!isLogin && password.length < 8) { setError('Choose a password with at least 8 characters.'); return; }
     setLoading(true);
     try {
       if (isLogin) {
         const res = await api.login({ username: username.trim(), password });
-        if (res?.token) { localStorage.setItem('token', res.token); navigate('/'); }
+        if (res?.token) { localStorage.setItem('token', res.token); localStorage.setItem('username', res.username || username.trim()); navigate('/'); }
         else setError('We could not sign you in. Please try again.');
       } else {
-        await api.register({ username: username.trim(), password });
+        const account = await api.register({ username: username.trim(), player_name: playerName.trim(), password });
+        localStorage.setItem('username', account?.username || username.trim());
         setIsLogin(true); setSuccess('Your account is ready. Sign in with the details you just created.');
       }
     } catch (err) {
@@ -47,6 +48,7 @@ export default function AuthPage() {
       {success && <div className="auth-success" role="status"><Check size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 7 }} />{success}</div>}
       <form onSubmit={handleSubmit}>
         <div className="auth-field"><label htmlFor="username">Username</label><input id="username" type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Your username" autoComplete="username" maxLength={40} required /></div>
+        {!isLogin && <div className="auth-field"><label htmlFor="player-name">Player name</label><input id="player-name" type="text" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="What should we call you?" autoComplete="name" maxLength={100} required /></div>}
         <div className="auth-field"><label htmlFor="password">Password</label><input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={isLogin ? 'Your password' : 'At least 8 characters'} autoComplete={isLogin ? 'current-password' : 'new-password'} minLength={isLogin ? undefined : 8} required /></div>
         <button type="submit" disabled={loading} className="auth-submit">{loading ? 'Please wait…' : isLogin ? <>Sign in <ArrowRight size={15} /></> : <>Create account <ArrowRight size={15} /></>}</button>
       </form>

@@ -21,7 +21,7 @@ class FutureSelfApiTests(unittest.TestCase):
             db.drop_all()
             db.create_all()
         self.client = app.test_client()
-        self.client.post('/api/auth/register', json={'username': 'player-one', 'password': 'password-123'})
+        self.client.post('/api/auth/register', json={'username': 'player-one', 'player_name': 'Himanshu', 'password': 'password-123'})
         login = self.client.post('/api/auth/login', json={'username': 'player-one', 'password': 'password-123'})
         self.headers = {'Authorization': f"Bearer {login.get_json()['token']}"}
         self.profile = {
@@ -44,6 +44,25 @@ class FutureSelfApiTests(unittest.TestCase):
         response = self.client.get('/api/future-self', headers=self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.get_json()['profile'])
+
+    def test_account_exposes_username_and_editable_player_name(self):
+        login = self.client.post('/api/auth/login', json={'username': 'player-one', 'password': 'password-123'})
+        self.assertEqual(login.get_json()['username'], 'player-one')
+        self.assertEqual(login.get_json()['player_name'], 'Himanshu')
+
+        account = self.client.get('/api/account', headers=self.headers)
+        self.assertEqual(account.status_code, 200)
+        self.assertEqual(account.get_json(), {'username': 'player-one', 'player_name': 'Himanshu'})
+
+        updated = self.client.put('/api/player', json={'name': 'Himanshu P.'}, headers=self.headers)
+        self.assertEqual(updated.status_code, 200)
+        account = self.client.get('/api/account', headers=self.headers)
+        self.assertEqual(account.get_json()['player_name'], 'Himanshu P.')
+
+        signup = self.client.post('/api/auth/register', json={
+            'username': 'player-two', 'player_name': 'Second Player', 'password': 'password-456',
+        })
+        self.assertEqual(signup.get_json()['player_name'], 'Second Player')
 
     def test_profile_requires_a_goal_and_focus_area(self):
         response = self.client.put('/api/future-self/profile', json={'vision': 'Too short'}, headers=self.headers)

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
 import XPNotification from '../components/XPNotification';
-import { Utensils, Plus, Trash2, Search, Target } from 'lucide-react';
+import { Utensils, Plus, Trash2, Search, Target, Coffee, Moon, Apple } from 'lucide-react';
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'];
-const MEAL_ICONS = { breakfast: '🌅', lunch: '🍱', dinner: '🌙', snack: '🍎' };
+const MEAL_ICONS = { breakfast: Coffee, lunch: Utensils, dinner: Moon, snack: Apple };
+function MealIcon({ type, ...props }) { const Icon = MEAL_ICONS[type]; return <Icon aria-hidden="true" {...props} />; }
 
 export default function DietTracker() {
   const [dietData, setDietData] = useState({ meals: [], totals: {}, goal_calories: 1800 });
@@ -88,8 +89,8 @@ export default function DietTracker() {
         <div className="flex items-center gap-3">
           <Utensils size={24} className="text-cyan-400" />
           <div>
-            <h1 className="text-2xl font-black text-white">Diet Tracker</h1>
-            <p className="text-gray-500 text-sm">Fuel the player. Win the game.</p>
+            <h1 className="text-2xl font-black text-white">Nutrition log</h1>
+            <p className="text-gray-500 text-sm">Track intake as information, not a score.</p>
           </div>
         </div>
         <button onClick={() => setShowAdd(!showAdd)}
@@ -133,12 +134,12 @@ export default function DietTracker() {
         {/* Macros */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Protein', value: totals.protein, color: '#60a5fa', icon: '💪', goal: 150 },
-            { label: 'Carbs', value: totals.carbs, color: '#fbbf24', icon: '⚡', goal: 200 },
-            { label: 'Fat', value: totals.fat, color: '#f87171', icon: '🔥', goal: 60 },
-          ].map(({ label, value, color, icon, goal }) => (
+            { label: 'Protein', value: totals.protein, color: '#78bce0', goal: 150 },
+            { label: 'Carbs', value: totals.carbs, color: '#c6aa74', goal: 200 },
+            { label: 'Fat', value: totals.fat, color: '#9b9de0', goal: 60 },
+          ].map(({ label, value, color, goal }) => (
             <div key={label} className="text-center p-3 rounded-lg" style={{ background: '#13132d' }}>
-              <div className="text-xs text-gray-500 mb-1">{icon} {label}</div>
+              <div className="text-xs text-gray-500 mb-1">{label}</div>
               <div className="text-lg font-bold font-mono" style={{ color }}>{value || 0}g</div>
               <div className="mt-1 stat-bar">
                 <div className="h-full rounded transition-all duration-700"
@@ -162,7 +163,7 @@ export default function DietTracker() {
                   mealType === type ? 'text-white' : 'text-gray-500 border border-gray-800'
                 }`}
                 style={mealType === type ? { background: 'linear-gradient(135deg, #7c3aed55, #00d4ff22)', border: '1px solid #00d4ff44' } : {}}>
-                {MEAL_ICONS[type]} {type}
+                <MealIcon type={type} size={14} /> {type}
               </button>
             ))}
           </div>
@@ -254,7 +255,7 @@ export default function DietTracker() {
             <div key={type} className="card">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-bold text-gray-300 capitalize flex items-center gap-2">
-                  {MEAL_ICONS[type]} {type}
+                  <MealIcon type={type} size={15} /> {type}
                 </h3>
                 <span className="text-xs text-gray-500 font-mono">{typeTotal} kcal</span>
               </div>

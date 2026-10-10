@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../utils/api';
-import { Check, Circle, Crown, Zap, ArrowRight } from 'lucide-react';
+import { Check, Circle, Crown, Zap, ArrowRight, Target } from 'lucide-react';
 
 export default function QuestBoard({ onXpGain }) {
   const [quests, setQuests] = useState({ daily: [], boss: [], progress: {} });
@@ -37,7 +37,7 @@ function QuestItem({ quest, complete, busy }) {
   const done = Boolean(quest.completed);
   return <button type="button" onClick={() => complete(quest)} disabled={done || busy} className="mission-item" aria-label={(done ? 'Completed: ' : 'Complete mission: ') + quest.title}>
     <span className={'mission-check' + (done ? ' done' : '')}>{done ? <Check size={17} /> : busy ? <span aria-label="Saving">…</span> : <Circle size={17} />}</span>
-    <span className="mission-emoji" aria-hidden="true">{quest.icon || '✦'}</span>
+    <span className="mission-mark" aria-hidden="true"><Target size={15} strokeWidth={1.7} /></span>
     <span className="mission-copy"><span className="mission-name" style={{ display: 'block', textDecoration: done ? 'line-through' : 'none', opacity: done ? .66 : 1 }}>{quest.title}</span><span className="mission-description" style={{ display: 'block' }}>{quest.description}</span></span>
     <span className="mission-reward"><Zap size={10} style={{ display: 'inline', verticalAlign: 'middle' }} /> +{quest.xp_reward}</span>
   </button>;

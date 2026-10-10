@@ -33,6 +33,14 @@ def get_player():
         return jsonify({'error': 'Player not found'}), 404
     return jsonify(player.to_dict())
 
+@player_bp.route('/account', methods=['GET'])
+def get_account():
+    player = Player.query.filter_by(user_id=request.user.id).first()
+    return jsonify({
+        'username': request.user.username,
+        'player_name': player.name if player else 'Player',
+    })
+
 @player_bp.route('/player', methods=['PUT'])
 def update_player():
     player = Player.query.filter_by(user_id=request.user.id).first()

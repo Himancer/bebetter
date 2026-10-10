@@ -27,11 +27,11 @@ export default function WeightChart({ compact = false }) {
       {milestones.remaining != null && <span>{milestones.remaining} kg to your goal</span>}
     </div>}
     <div style={{ height: compact ? 160 : 220 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-      <CartesianGrid strokeDasharray="3 3" stroke="rgba(190,210,226,.08)" />
+      <CartesianGrid strokeDasharray="3 3" stroke="rgba(126,169,205,.12)" />
       <XAxis dataKey="date" tick={{ fill: '#81909b', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'rgba(190,210,226,.12)' }} />
-      <YAxis tick={{ fill: '#81909b', fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
-      <Tooltip content={<Tip />} />{goal != null && <ReferenceLine y={goal} stroke="#b8a2ff" strokeDasharray="4 4" />}
-      <Line type="monotone" dataKey="weight" stroke="#72e2dc" strokeWidth={2.5} dot={{ r: 2, fill: '#72e2dc', strokeWidth: 0 }} activeDot={{ r: 5, fill: '#72e2dc', stroke: '#0b1117', strokeWidth: 2 }} />
+      <YAxis tick={{ fill: '#8299ab', fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
+      <Tooltip content={<Tip />} />{goal != null && <ReferenceLine y={goal} stroke="#9b9de0" strokeDasharray="4 4" />}
+      <Line type="monotone" dataKey="weight" stroke="#6fc5ef" strokeWidth={2} dot={{ r: 2, fill: '#6fc5ef', strokeWidth: 0 }} activeDot={{ r: 4, fill: '#6fc5ef', stroke: '#080d15', strokeWidth: 2 }} />
     </LineChart></ResponsiveContainer></div>
   </div>;
 }
