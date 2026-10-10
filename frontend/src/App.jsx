@@ -1,62 +1,46 @@
-import React from 'react';
+﻿import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import FutureSelfGate from './components/FutureSelfGate';
 import Navbar from './components/Navbar';
 import ChatBot from './components/ChatBot';
 import ErrorBoundary from './components/ErrorBoundary';
-import Dashboard from './pages/Dashboard';
-import WeightTracker from './pages/WeightTracker';
-import WorkoutLogger from './pages/WorkoutLogger';
-import DietTracker from './pages/DietTracker';
-import QuestsPage from './pages/QuestsPage';
-import AuthPage from './pages/AuthPage';
+import './dashboard.css';
+import './theme.css';
 
-// Validate the JWT's expiry client-side so a stale/expired token never mounts
-// the protected app (which would otherwise 401 on every call and bounce).
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const WeightTracker = lazy(() => import('./pages/WeightTracker'));
+const WorkoutLogger = lazy(() => import('./pages/WorkoutLogger'));
+const DietTracker = lazy(() => import('./pages/DietTracker'));
+const QuestsPage = lazy(() => import('./pages/QuestsPage'));
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const FutureSelfPage = lazy(() => import('./pages/FutureSelfPage'));
+
 function isTokenValid(token) {
   if (!token) return false;
   try {
     const { exp } = JSON.parse(atob(token.split('.')[1]));
     return typeof exp === 'number' && exp * 1000 > Date.now();
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
-
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  if (!isTokenValid(token)) {
-    localStorage.removeItem('token');
-    return <Navigate to="/login" replace />;
-  }
+  if (!isTokenValid(token)) { localStorage.removeItem('token'); return <Navigate to="/login" replace />; }
   return children;
 };
 
 export default function App() {
-  return (
-    <BrowserRouter>
-      <ErrorBoundary>
-      <Routes>
-        <Route path="/login" element={<AuthPage />} />
-        
-        <Route path="/*" element={
-          <ProtectedRoute>
-            <div className="flex min-h-screen" style={{ background: '#0a0a1a' }}>
-              <Navbar />
-              <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6 overflow-x-hidden">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/weight" element={<WeightTracker />} />
-                  <Route path="/workout" element={<WorkoutLogger />} />
-                  <Route path="/diet" element={<DietTracker />} />
-                  <Route path="/quests" element={<QuestsPage />} />
-                </Routes>
-              </main>
-              <ChatBot />
-            </div>
-          </ProtectedRoute>
-        } />
-      </Routes>
-      </ErrorBoundary>
-    </BrowserRouter>
-  );
+  return <BrowserRouter><ErrorBoundary><Suspense fallback={<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: 'var(--muted)', background: '#0b1117' }}>Loading BeBetter…</div>}>
+    <Routes>
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/*" element={<ProtectedRoute><div className="app-layout flex min-h-screen" style={{ background: '#0a0a1a' }}><Navbar /><main className="app-content flex-1 p-4 md:p-6 pb-20 md:pb-6 overflow-x-hidden"><Routes>
+        <Route path="/" element={<FutureSelfGate><Dashboard /></FutureSelfGate>} />
+        <Route path="/future-self" element={<FutureSelfPage />} />
+        <Route path="/weight" element={<FutureSelfGate><WeightTracker /></FutureSelfGate>} />
+        <Route path="/workout" element={<FutureSelfGate><WorkoutLogger /></FutureSelfGate>} />
+        <Route path="/diet" element={<FutureSelfGate><DietTracker /></FutureSelfGate>} />
+        <Route path="/quests" element={<FutureSelfGate><QuestsPage /></FutureSelfGate>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes></main><ChatBot /></div></ProtectedRoute>} />
+    </Routes>
+  </Suspense></ErrorBoundary></BrowserRouter>;
 }

@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --line: rgba(196, 215, 225, .13);
+  --ink: #f2f6f4;
+  --muted: #a3afb9;
+  --dim: #71808c;
+  --cyan: #80edc9;
+  --lime: #d4ff70;
+  --amber: #ffc77d;
+  --violet: #b3a2ff;
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 87% -8%, rgba(143, 116, 255, .14), transparent 37rem),
+    radial-gradient(ellipse at 12% 18%, rgba(80, 230, 180, .09), transparent 32rem),
+    #090d12;
+  font-family: 'DM Sans', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-feature-settings: 'ss01' on;
+}
+
+h1, h2, h3, h4, .brand-title, .hero-title {
+  font-family: 'Space Grotesk', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+code, kbd, .font-mono, .rank-caption, .future-step-index {
+  font-family: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+::selection { background: rgba(128, 237, 201, .24); color: white; }
+
+.app-layout { background: transparent !important; }
+.system-sidebar { background: rgba(10, 15, 20, .82) !important; }
+.mobile-nav { background: rgba(10, 15, 20, .88); }
+.card, .future-panel {
+  background: linear-gradient(145deg, rgba(22, 31, 39, .96), rgba(13, 19, 25, .98));
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .18);
+}
+.dashboard-hero {
+  background:
+    radial-gradient(ellipse at 94% 11%, rgba(128, 237, 201, .17), transparent 29%),
+    radial-gradient(ellipse at 72% 100%, rgba(179, 162, 255, .13), transparent 37%),
+    linear-gradient(124deg, #172229, #111a20 57%, #171d22);
+}
+.dashboard-hero::before {
+  content: '';
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  right: -125px;
+  bottom: -275px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(128, 237, 201, .2), rgba(179, 162, 255, .08) 45%, transparent 70%);
+  filter: blur(7px);
+  pointer-events: none;
+  animation: aurora-drift 11s ease-in-out infinite alternate;
+}
+.dashboard-hero::after { animation: orbit-breathe 8s ease-in-out infinite; }
+.rank-orbit { box-shadow: 0 0 52px rgba(212, 255, 112, .07), inset 0 0 25px rgba(128, 237, 201, .035); }
+.future-plan-hero {
+  background:
+    radial-gradient(ellipse at 100% 0, rgba(179, 162, 255, .13), transparent 36%),
+    radial-gradient(ellipse at 3% 100%, rgba(128, 237, 201, .09), transparent 40%),
+    linear-gradient(145deg, #172229, #10171e);
+}
+.future-teaser-icon { color: var(--violet); background: rgba(179, 162, 255, .1); }
+.future-teaser { background: linear-gradient(100deg, rgba(128, 237, 201, .055), rgba(179, 162, 255, .045), rgba(255, 255, 255, .015)); }
+.future-primary { box-shadow: 0 7px 24px rgba(212, 255, 112, .09); }
+.future-primary, .action-primary { position: relative; overflow: hidden; }
+.future-primary::after, .action-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(100deg, transparent 25%, rgba(255,255,255,.22) 50%, transparent 75%);
+  transition: transform .55s ease;
+  pointer-events: none;
+}
+.future-primary:hover::after, .action-primary:hover::after { transform: translateX(120%); }
+.future-area-chip.selected, .future-tone.selected { box-shadow: inset 0 0 18px rgba(128, 237, 201, .04); }
+.mission-item:not(:disabled):hover, .card-hover:hover { box-shadow: 0 12px 34px rgba(20, 100, 85, .12); }
+.system-nav a.active { box-shadow: inset 2px 0 0 var(--lime); }
+.chat-toggle { color: #0a1814; background: linear-gradient(135deg, var(--lime), var(--cyan)); box-shadow: 0 10px 32px rgba(128, 237, 201, .23); animation: chat-glow 3.8s ease-in-out infinite; }
+.chat-window { width: min(400px, calc(100vw - 28px)); height: min(560px, calc(100dvh - 42px)); border: 1px solid rgba(128, 237, 201, .2); background: #0b1117; box-shadow: 0 24px 90px rgba(0, 0, 0, .5), 0 0 36px rgba(128, 237, 201, .045); backdrop-filter: blur(20px); }
+.chat-header { background: linear-gradient(110deg, #131e25, #151925); border-color: var(--line); }
+.chat-avatar { color: #0a1814; background: linear-gradient(135deg, var(--lime), var(--cyan)); }
+.chat-avatar-small { color: #101a16; }
+.chat-subtitle { color: var(--cyan); }
+.chat-message { border: 1px solid var(--line); line-height: 1.55; white-space: pre-wrap; }
+.chat-message-user { color: #f3fff9; border-color: rgba(128, 237, 201, .19); background: linear-gradient(135deg, rgba(54, 152, 123, .25), rgba(28, 94, 79, .18)); }
+.chat-message-assistant { color: #dce5e6; background: linear-gradient(145deg, #151e26, #111820); }
+.chat-input { color: var(--ink); border: 1px solid var(--line); background: #0f171e; }
+.chat-input::placeholder { color: var(--dim); }
+.chat-input:focus { border-color: rgba(128, 237, 201, .45); }
+.chat-send { color: #0a1814; background: var(--lime); }
+.chat-send:disabled { color: var(--dim); background: #1a252b; }
+.typing-dot { background-color: var(--cyan); }
+
+@keyframes aurora-drift {
+  from { transform: translate3d(-12px, 8px, 0) scale(.92); opacity: .62; }
+  to { transform: translate3d(15px, -14px, 0) scale(1.08); opacity: 1; }
+}
+@keyframes orbit-breathe {
+  0%, 100% { transform: scale(1); opacity: .78; }
+  50% { transform: scale(1.035); opacity: 1; }
+}
+@keyframes page-rise {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes chat-glow {
+  0%, 100% { box-shadow: 0 10px 32px rgba(128, 237, 201, .18); }
+  50% { box-shadow: 0 10px 39px rgba(179, 162, 255, .24); }
+}
+
+.dashboard-shell > *, .future-shell > * { animation: page-rise .42s cubic-bezier(.2,.75,.3,1) both; }
+.dashboard-shell > :nth-child(2), .future-shell > :nth-child(2) { animation-delay: 55ms; }
+.dashboard-shell > :nth-child(3), .future-shell > :nth-child(3) { animation-delay: 100ms; }
+.dashboard-shell > :nth-child(4), .future-shell > :nth-child(4) { animation-delay: 145ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero::before, .dashboard-hero::after, .dashboard-shell > *, .future-shell > * { animation: none !important; }
+  .future-primary::after, .action-primary::after { display: none; }
+  .chat-toggle { animation: none; }
+}
+
+@media (max-width: 680px) {
+  .future-teaser { align-items: flex-start; gap: 9px; padding: 13px; }
+  .future-teaser-icon { width: 30px; height: 30px; }
+  .future-teaser-action { gap: 3px; font-size: 9px; }
+  .chat-window { right: 12px; bottom: 82px; height: min(560px, calc(100dvh - 100px)); }
+  .chat-toggle { right: 16px; bottom: 78px; }
+}

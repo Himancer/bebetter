@@ -1,127 +1,57 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
-import { Dumbbell, ShieldAlert, Zap } from 'lucide-react';
+import { Sparkles, ShieldAlert, ArrowRight, Check } from 'lucide-react';
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(true), [username, setUsername] = useState(''), [password, setPassword] = useState('');
+  const [error, setError] = useState(''), [success, setSuccess] = useState(''), [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!username || !password) {
-      setError('System Error: Required credentials missing.');
-      return;
-    }
-
+  const handleSubmit = async e => {
+    e.preventDefault(); setError(''); setSuccess('');
+    if (!username.trim() || !password) { setError('Enter both a username and password to continue.'); return; }
+    if (!isLogin && password.length < 8) { setError('Choose a password with at least 8 characters.'); return; }
     setLoading(true);
     try {
       if (isLogin) {
-        const res = await api.login({ username, password });
-        if (res && res.token) {
-          localStorage.setItem('token', res.token);
-          navigate('/');
-        }
+        const res = await api.login({ username: username.trim(), password });
+        if (res?.token) { localStorage.setItem('token', res.token); navigate('/'); }
+        else setError('We could not sign you in. Please try again.');
       } else {
-        await api.register({ username, password });
-        setIsLogin(true);
-        setError('');
-        alert('Player registered! You may now enter the dungeon.');
+        await api.register({ username: username.trim(), password });
+        setIsLogin(true); setSuccess('Your account is ready. Sign in with the details you just created.');
       }
     } catch (err) {
-      try {
-        const parsed = JSON.parse(err.message);
-        setError(parsed.message || parsed.error || 'Authentication failed');
-      } catch {
-        setError(err.message || 'Authentication failed. Check your connection.');
-      }
-    } finally {
-      setLoading(false);
-    }
+      try { const parsed = JSON.parse(err.message); setError(parsed.message || parsed.error || 'We could not complete that request.'); }
+      catch { setError(err.message || 'We could not reach the server. Check your connection and try again.'); }
+    } finally { setLoading(false); }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#0a0a1a' }}>
-      <div className="card w-full max-w-md glow-blue relative overflow-hidden" style={{ border: '1px solid #00d4ff44' }}>
-        
-        <div className="absolute top-0 right-0 p-4 opacity-5">
-          <Dumbbell size={150} />
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex justify-center mb-4">
-            <Zap size={40} className="text-cyan-400 drop-shadow-[0_0_10px_#00d4ff]" />
-          </div>
-          <h2 className="text-3xl font-black text-center mb-1 font-mono tracking-widest text-glow-blue" style={{ color: '#00d4ff' }}>
-            BE BETTER
-          </h2>
-          <p className="text-gray-500 text-center text-xs mb-8 tracking-[0.2em] font-mono">
-            {isLogin ? 'SYSTEM LOGIN' : 'PLAYER AWAKENING'}
-          </p>
-
-          {error && (
-            <div className="mb-5 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: '#f8717111', border: '1px solid #f8717144', color: '#f87171' }}>
-              <ShieldAlert size={16} />
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-xs text-cyan-400 mb-1 block font-mono tracking-wider">PLAYER_ID</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg text-white font-mono outline-none transition-all"
-                style={{ background: '#13132d', border: '1px solid #1a1a3e' }}
-                placeholder="Enter username"
-                autoComplete="off"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-cyan-400 mb-1 block font-mono tracking-wider">PASSCODE</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg text-white font-mono outline-none transition-all"
-                style={{ background: '#13132d', border: '1px solid #1a1a3e' }}
-                placeholder="••••••••"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg font-black text-sm tracking-widest mt-4 transition-all hover:scale-[1.02] flex justify-center items-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)', color: 'white' }}
-            >
-              {loading ? 'PROCESSING...' : (isLogin ? 'ENTER DUNGEON' : 'INITIALIZE SYSTEM')}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center text-xs text-gray-500 font-mono">
-            {isLogin ? "NEW PLAYER? " : "SYSTEM READY? "}
-            <button
-              onClick={() => { setIsLogin(!isLogin); setError(''); }}
-              className="text-cyan-400 hover:text-white transition-colors tracking-wider"
-              style={{ textDecoration: 'underline', textUnderlineOffset: '4px' }}
-            >
-              {isLogin ? 'AWAKEN NOW' : 'LOG IN'}
-            </button>
-          </div>
-          
-          <div className="mt-8 text-center text-[10px] text-gray-700 font-mono tracking-widest">
-            "AB NAHI TO KAB 🔥"
-          </div>
-        </div>
+  return <main className="auth-page">
+    <section className="auth-story">
+      <div className="auth-brand"><span className="brand-mark"><Sparkles size={19} /></span><span>beBetter</span></div>
+      <div className="auth-message">
+        <div className="auth-eyebrow"><span className="status-dot" /> Your personal growth system</div>
+        <h1 className="auth-title">Become your own <em>next level.</em></h1>
+        <p className="auth-description">Turn the small things you do for yourself into visible progress. Train, build consistency, and make room for the person you’re becoming.</p>
+        <div className="auth-pill-row"><span className="auth-pill">Training</span><span className="auth-pill">Nutrition</span><span className="auth-pill">Daily missions</span><span className="auth-pill">Personal progress</span></div>
       </div>
-    </div>
-  );
+      <div className="auth-footer">A work in progress, built around one idea: keep showing up for yourself.</div>
+    </section>
+    <section className="auth-form-side"><div className="auth-card">
+      <div className="auth-card-kicker">{isLogin ? 'Welcome back' : 'Start your journey'}</div>
+      <h2>{isLogin ? 'Sign in to BeBetter' : 'Create your account'}</h2>
+      <p className="auth-card-subtitle">{isLogin ? 'Pick up where you left off.' : 'Your first step is simply showing up.'}</p>
+      {error && <div className="auth-error" role="alert"><ShieldAlert size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 7 }} />{error}</div>}
+      {success && <div className="auth-success" role="status"><Check size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 7 }} />{success}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="auth-field"><label htmlFor="username">Username</label><input id="username" type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Your username" autoComplete="username" maxLength={40} required /></div>
+        <div className="auth-field"><label htmlFor="password">Password</label><input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={isLogin ? 'Your password' : 'At least 8 characters'} autoComplete={isLogin ? 'current-password' : 'new-password'} minLength={isLogin ? undefined : 8} required /></div>
+        <button type="submit" disabled={loading} className="auth-submit">{loading ? 'Please wait…' : isLogin ? <>Sign in <ArrowRight size={15} /></> : <>Create account <ArrowRight size={15} /></>}</button>
+      </form>
+      <div className="auth-switch">{isLogin ? 'New to BeBetter? ' : 'Already have an account? '}<button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); setSuccess(''); }}>{isLogin ? 'Create an account' : 'Sign in'}</button></div>
+      <div className="auth-privacy">Use a password you don’t use elsewhere. This early version is a personal progress demo; avoid adding sensitive health information.</div>
+    </div></section>
+  </main>;
 }

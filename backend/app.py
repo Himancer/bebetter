@@ -8,6 +8,7 @@ from routes.diet import diet_bp
 from routes.quest import quest_bp
 from routes.chat import chat_bp
 from routes.auth import auth_bp
+from routes.future_self import future_self_bp
 from auth_middleware import check_jwt
 import os
 
@@ -36,6 +37,7 @@ def create_app():
     app.register_blueprint(quest_bp, url_prefix='/api')
     app.register_blueprint(chat_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/api')
+    app.register_blueprint(future_self_bp, url_prefix='/api')
 
     app.before_request(check_jwt)
 

@@ -1,6 +1,6 @@
 from flask import request, jsonify
 import jwt
-from models import User
+from models import db, User
 from config import SECRET_KEY
 
 def check_jwt():
@@ -17,7 +17,7 @@ def check_jwt():
         token = auth_header.split(" ")[1]
         try:
             data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            user = User.query.get(data['user_id'])
+            user = db.session.get(User, data['user_id'])
             if not user:
                 return jsonify({'error': 'User not found'}), 401
             # Optionally attach user to request object

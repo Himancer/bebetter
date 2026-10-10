@@ -19,6 +19,8 @@ export function usePlayer() {
   }, []);
 
   useEffect(() => {
+    // The helper only updates state after its async API request settles.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPlayer();
     api.updateStreak().catch(() => {});
   }, [fetchPlayer]);

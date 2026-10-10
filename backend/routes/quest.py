@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from models import db, Quest, get_ist_date
+from models import db, Quest, FutureSelfProfile, get_ist_date
 
 quest_bp = Blueprint('quest', __name__)
 
@@ -7,11 +7,26 @@ def generate_daily_quests(user_id):
     today = get_ist_date()
     existing = Quest.query.filter_by(user_id=user_id, date=today).first()
     if not existing:
-        quests = [
-            Quest(user_id=user_id, title='Log Weight', description='Step on the scale', xp_reward=10, quest_type='log_weight', icon='⚖️'),
-            Quest(user_id=user_id, title='Clear a Dungeon', description='Complete 1 workout', xp_reward=50, quest_type='workout', icon='⚔️'),
-            Quest(user_id=user_id, title='Hydration', description='Drink 3L of water', xp_reward=15, quest_type='water', icon='💧')
-        ]
+        profile = FutureSelfProfile.query.filter_by(user_id=user_id).first()
+        personalized = (profile.plan or {}).get('daily_quests', []) if profile and profile.plan else []
+        quests = []
+        for index, item in enumerate(personalized[:3]):
+            if not isinstance(item, dict) or not item.get('title'):
+                continue
+            quests.append(Quest(
+                user_id=user_id,
+                title=str(item.get('title', 'A small step'))[:200],
+                description=str(item.get('description', 'A small action for your personal growth plan.'))[:500],
+                xp_reward=min(max(int(item.get('xp_reward', 20)), 5), 35),
+                quest_type=f'personal_{index + 1}',
+                icon=str(item.get('icon', '🌱'))[:50],
+            ))
+        if not quests:
+            quests = [
+                Quest(user_id=user_id, title='Log Weight', description='Step on the scale', xp_reward=10, quest_type='log_weight', icon='⚖️'),
+                Quest(user_id=user_id, title='Clear a Dungeon', description='Complete 1 workout', xp_reward=50, quest_type='workout', icon='⚔️'),
+                Quest(user_id=user_id, title='Hydration', description='Drink 3L of water', xp_reward=15, quest_type='water', icon='💧')
+            ]
         db.session.add_all(quests)
         db.session.commit()
 

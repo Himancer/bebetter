@@ -20,6 +20,8 @@ export default function WeightTracker() {
     if (today) setWeight(today.weight.toString());
   };
 
+  // The helper only updates state after its async API request settles.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadData().catch(console.error); }, []);
 
   const handleSubmit = async (e) => {

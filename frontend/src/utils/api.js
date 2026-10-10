@@ -1,4 +1,4 @@
-const BASE = '/api';
+﻿const BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 // Module-level guard so multiple concurrent 401s only trigger ONE redirect,
 // instead of each failed request hard-reloading the page (the "reload storm").
@@ -68,7 +68,7 @@ export const api = {
   getFoods: (q) => req('GET', `/diet/foods${q ? `?q=${encodeURIComponent(q)}` : ''}`),
   getDietHistory: (limit = 7) => req('GET', `/diet/history?limit=${limit}`),
 
-  // Quests — backend returns a flat array of quests; normalize to the
+  // Quests â€” backend returns a flat array of quests; normalize to the
   // { daily, boss, progress } shape the UI components expect.
   getQuests: async () => {
     const data = await req('GET', '/quest');
@@ -88,4 +88,9 @@ export const api = {
   getChatHistory: () => req('GET', '/chat'),
   sendMessage: (message) => req('POST', '/chat', { message }),
   clearChat: () => req('DELETE', '/chat'),
+
+  // Future Self
+  getFutureSelf: () => req('GET', '/future-self'),
+  saveFutureSelf: (profile) => req('PUT', '/future-self/profile', profile),
+  generateFutureSelfPlan: () => req('POST', '/future-self/plan', {}),
 };

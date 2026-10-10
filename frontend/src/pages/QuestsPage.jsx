@@ -1,169 +1,83 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { api } from '../utils/api';
 import XPNotification from '../components/XPNotification';
-import { Scroll, CheckCircle, Circle, Crown, Zap, RefreshCw } from 'lucide-react';
+import { ArrowRight, Check, Circle, Crown, RefreshCw, Scroll, Sparkles, Zap } from 'lucide-react';
 
 export default function QuestsPage() {
-  const [quests, setQuests] = useState({ daily: [], boss: [], progress: {} });
+  const [quests, setQuests] = useState({ daily: [], boss: [], progress: { completed: 0, total: 0 } });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [xpNotif, setXpNotif] = useState(null);
   const [completing, setCompleting] = useState(null);
 
-  const loadQuests = async () => {
-    const data = await api.getQuests();
-    setQuests(data);
-    setLoading(false);
-  };
+  const loadQuests = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      setQuests(await api.getQuests());
+    } catch {
+      setError('Your quests could not load. Check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  useEffect(() => { loadQuests().catch(console.error); }, []);
+  // This async helper updates state after its API request settles.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { loadQuests(); }, [loadQuests]);
 
-  const complete = async (quest) => {
+  const complete = async quest => {
     if (quest.completed || completing) return;
     setCompleting(quest.id);
+    setError('');
     try {
       const result = await api.completeQuest(quest.id);
-      setXpNotif(result.xp_result);
+      if (result?.xp_result) setXpNotif(result.xp_result);
       await loadQuests();
-    } catch (e) {
-      console.error(e);
+    } catch {
+      setError('That quest could not be updated. Please try again.');
     } finally {
       setCompleting(null);
     }
   };
 
-  const { daily, boss, progress } = quests;
-  const completedPct = progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
+  const daily = quests.daily || [];
+  const boss = quests.boss || [];
+  const progress = quests.progress || { completed: 0, total: daily.length + boss.length };
+  const completedPct = progress.total > 0 ? Math.min(100, (progress.completed / progress.total) * 100) : 0;
 
-  return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      {xpNotif && <XPNotification xpResult={xpNotif} onDone={() => setXpNotif(null)} />}
+  return <div className="quest-page">
+    {xpNotif && <XPNotification xpResult={xpNotif} onDone={() => setXpNotif(null)} />}
+    <header className="quest-header">
+      <div><div className="future-eyebrow"><span className="status-dot" /> TODAY’S MOMENTUM</div><h1>Quest board<span>.</span></h1><p>Small, personal actions that keep the week moving. A lighter version still counts.</p></div>
+      <button type="button" className="quest-refresh" onClick={loadQuests} disabled={loading} aria-label="Refresh quests"><RefreshCw size={16} className={loading ? 'quest-spinning' : ''} /> Refresh</button>
+    </header>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Scroll size={24} className="text-cyan-400" />
-          <div>
-            <h1 className="text-2xl font-black text-white">Quest Board</h1>
-            <p className="text-gray-500 text-sm">Daily missions. Weekly bosses. Endless grind.</p>
-          </div>
-        </div>
-        <button onClick={loadQuests} className="text-gray-600 hover:text-gray-400 p-2">
-          <RefreshCw size={18} />
-        </button>
-      </div>
+    <section className="quest-progress-card" aria-label="Daily quest progress">
+      <div className="quest-progress-head"><div><span>YOUR DAILY PROGRESS</span><strong>{progress.completed} <small>/ {progress.total} cleared</small></strong></div><div className="quest-progress-emblem"><Scroll size={19} /></div></div>
+      <div className="xp-bar quest-progress-bar"><div className="xp-bar-fill" style={{ width: `${completedPct}%` }} /></div>
+      <div className="quest-progress-foot">{completedPct === 100 && progress.total > 0 ? 'All today’s quests are cleared. Take the win.' : 'One useful step at a time.'}<span>{Math.round(completedPct)}%</span></div>
+    </section>
 
-      {/* Daily progress */}
-      {!loading && (
-        <div className="card">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-gray-400">DAILY PROGRESS</span>
-            <span className="text-sm font-mono text-cyan-400">
-              {progress.completed}/{progress.total} Cleared
-            </span>
-          </div>
-          <div className="xp-bar" style={{ height: '12px' }}>
-            <div className="xp-bar-fill" style={{ width: `${completedPct}%` }} />
-          </div>
-          {completedPct === 100 && (
-            <div className="text-center mt-3 text-green-400 font-bold text-sm level-up-flash">
-              🎉 ALL DAILY QUESTS CLEARED! 🎉
-            </div>
-          )}
-        </div>
-      )}
+    {error && <div className="quest-error" role="alert">{error}<button type="button" onClick={loadQuests}>Try again</button></div>}
 
-      {/* Daily quests */}
-      <div className="card space-y-2">
-        <h3 className="text-sm font-bold text-gray-400 tracking-widest mb-4 flex items-center gap-2">
-          ⚔️ DAILY QUESTS
-        </h3>
+    <section className="quest-list-panel">
+      <div className="quest-section-heading"><div className="quest-section-icon"><Sparkles size={16} /></div><div><h2>Today’s quests</h2><p>These are tailored to the focus areas in your Future Self plan.</p></div><span className="quest-section-count">{daily.length} ACTIVE</span></div>
+      {loading ? <div className="quest-loading" role="status">Preparing your quests…</div> : daily.length ? <div className="quest-list">{daily.map(quest => <QuestCard key={quest.id} quest={quest} onComplete={complete} busy={completing === quest.id} />)}</div> : <div className="quest-loading">No quests yet. Refresh to check for today’s missions.</div>}
+    </section>
 
-        {loading ? (
-          <div className="text-center py-6 text-gray-600 animate-pulse">Generating quests...</div>
-        ) : (
-          daily.map(quest => (
-            <QuestCard
-              key={quest.id}
-              quest={quest}
-              onComplete={complete}
-              completing={completing === quest.id}
-            />
-          ))
-        )}
-      </div>
+    {boss.length > 0 && <section className="quest-list-panel quest-boss-panel"><div className="quest-section-heading"><div className="quest-section-icon boss"><Crown size={16} /></div><div><h2>Weekly challenge</h2><p>A longer challenge to work on when it fits.</p></div></div><div className="quest-list">{boss.map(quest => <QuestCard key={quest.id} quest={quest} onComplete={complete} busy={completing === quest.id} boss />)}</div></section>}
 
-      {/* Boss quests */}
-      {boss.length > 0 && (
-        <div className="card space-y-2" style={{ borderColor: '#fbbf2422' }}>
-          <h3 className="text-sm font-bold text-yellow-400 tracking-widest mb-4 flex items-center gap-2">
-            <Crown size={14} /> WEEKLY BOSS QUEST
-          </h3>
-          {boss.map(quest => (
-            <QuestCard
-              key={quest.id}
-              quest={quest}
-              onComplete={complete}
-              completing={completing === quest.id}
-              isBoss
-            />
-          ))}
-        </div>
-      )}
-
-      {/* XP explanation */}
-      <div className="card text-center py-4" style={{ borderColor: '#7c3aed22' }}>
-        <div className="text-gray-500 text-xs font-mono mb-2">LEVEL UP SYSTEM</div>
-        <div className="text-white text-lg font-bold font-mono">100 XP = 1 Level</div>
-        <div className="text-gray-500 text-sm mt-1">
-          Complete quests → Earn XP → Level up → Unlock higher ranks
-        </div>
-        <div className="text-xs text-gray-700 mt-2 font-mono">E → D → C → B → A → S</div>
-      </div>
-    </div>
-  );
+    <section className="quest-xp-note"><div className="quest-section-icon"><Zap size={16} /></div><div><strong>XP tracks app activity</strong><p>Quests help you keep a rhythm. They don’t measure your health, worth, or how far you can go.</p></div><div className="quest-rank-path">E <ArrowRight size={11} /> D <ArrowRight size={11} /> C <ArrowRight size={11} /> B <ArrowRight size={11} /> A <ArrowRight size={11} /> S</div></section>
+  </div>;
 }
 
-function QuestCard({ quest, onComplete, completing, isBoss }) {
-  return (
-    <div
-      onClick={() => !quest.completed && onComplete(quest)}
-      className={`p-4 rounded-xl transition-all ${
-        quest.completed
-          ? 'opacity-60 cursor-default'
-          : 'cursor-pointer hover:bg-white/5 active:scale-[0.98]'
-      }`}
-      style={{
-        background: quest.completed ? '#00ff8808' : '#13132d',
-        border: `1px solid ${quest.completed ? '#00ff8833' : isBoss ? '#fbbf2422' : '#1a1a3e'}`,
-      }}>
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 mt-0.5">
-          {quest.completed
-            ? <CheckCircle size={22} className="text-green-400" />
-            : completing
-            ? <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mt-0.5" />
-            : <Circle size={22} className={isBoss ? 'text-yellow-600' : 'text-gray-600'} />
-          }
-        </div>
-
-        <div className="text-2xl flex-shrink-0">{quest.icon}</div>
-
-        <div className="flex-1 min-w-0">
-          <div className={`font-medium ${quest.completed ? 'line-through text-gray-500' : 'text-white'}`}>
-            {quest.title}
-          </div>
-          <div className="text-xs text-gray-600 mt-0.5">{quest.description}</div>
-        </div>
-
-        <div className="flex-shrink-0 text-right">
-          <div className="flex items-center gap-1 justify-end">
-            <Zap size={12} className="text-yellow-400" />
-            <span className={`font-mono font-bold text-sm ${isBoss ? 'text-yellow-400' : 'text-cyan-400'}`}>
-              +{quest.xp_reward}
-            </span>
-          </div>
-          <div className="text-xs text-gray-600 mt-0.5">XP</div>
-        </div>
-      </div>
-    </div>
-  );
+function QuestCard({ quest, onComplete, busy, boss = false }) {
+  const done = Boolean(quest.completed);
+  return <button type="button" onClick={() => onComplete(quest)} disabled={done || busy} className={`quest-item${done ? ' is-done' : ''}${boss ? ' is-boss' : ''}`} aria-label={`${done ? 'Completed' : 'Complete'} quest: ${quest.title}`}>
+    <span className={`quest-check${done ? ' is-done' : ''}`} aria-hidden="true">{done ? <Check size={15} /> : busy ? <span className="quest-loader" /> : <Circle size={18} />}</span>
+    <span className="quest-item-icon" aria-hidden="true">{quest.icon || '🌱'}</span>
+    <span className="quest-item-copy"><strong>{quest.title}</strong><small>{quest.description}</small></span>
+    <span className="quest-reward"><Zap size={11} /> +{quest.xp_reward}<small>XP</small></span>
+  </button>;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
 import XPNotification from '../components/XPNotification';
 import { Dumbbell, Plus, Trash2, CheckCircle, ChevronDown, ChevronUp, Zap } from 'lucide-react';
@@ -36,15 +36,17 @@ export default function WorkoutLogger() {
   const [newWorkout, setNewWorkout] = useState({ name: '', duration_minutes: 0, notes: '', exercises: [] });
   const [newExercise, setNewExercise] = useState({ name: '', sets: 3, reps: 10, weight_kg: 0 });
 
-  useEffect(() => {
-    loadData().catch(console.error);
-    api.getTemplates().then(setTemplates).catch(console.error);
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     const data = await api.getWorkouts(20);
     setWorkouts(data);
-  };
+  }, []);
+
+  useEffect(() => {
+    // The helper only updates state after its async API request settles.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData().catch(console.error);
+    api.getTemplates().then(setTemplates).catch(console.error);
+  }, [loadData]);
 
   const addExercise = () => {
     if (!newExercise.name) return;

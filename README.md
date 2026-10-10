@@ -23,7 +23,8 @@ beBetter reframes fitness as a role-playing game. You log your **workouts, meals
 - 🏋️ **Workout logger** — workouts with sets/reps/weight per exercise and XP rewards
 - 🥗 **Diet tracker** — searchable food database with calories and macro breakdown
 - ⚖️ **Weight tracker** — log weight over time with milestone tracking and charts
-- 🤖 **AI coach** — Groq Llama 3 chatbot with a tough-love motivational persona
+- 🧭 **Future Self plan** — guided onboarding turns a user's aspirations, priorities, available time, and constraints into reviewable milestones and personalized daily quests
+- 🤖 **Grounded AI coach** — Groq-powered coach can use the profile and a limited activity summary only after the user opts in; plans use ranges and avoid guaranteed outcomes
 - 🔐 **JWT auth** — register/login with hashed passwords (werkzeug) and protected API routes
 
 ## 🛠️ Tech Stack
@@ -81,7 +82,9 @@ To enable the AI coach, set a free Groq key:
 # PowerShell
 $env:GROQ_API_KEY = "gsk_your_key_here"
 ```
-Without it, the app runs fine — the chatbot just returns a "key missing" placeholder.
+Without it, the app runs fine — users who opt out get a local starter plan, and AI generation falls back to a clearly labeled starter plan when Groq is not configured.
+
+Future Self onboarding asks users to describe their goals and real constraints. The opt-in for AI personalization is unchecked by default. When enabled, the backend sends the profile and a small activity summary to Groq; when disabled, the profile context stays in the BeBetter database and the plan is generated from local templates. The coach never claims to be a literal future self or a perfect copy of an inspiration.
 
 ## ⚙️ Environment variables
 
@@ -118,3 +121,13 @@ wires `DATABASE_URL`, auto-generates `SECRET_KEY`, and builds + serves the app.
 - GitHub: [@Himancer](https://github.com/Himancer)
 - LinkedIn: [himanshu-pandey](https://www.linkedin.com/in/himanshu-pandey-053660200)
 - Portfolio: [himanshu-portfolio-website-sr22.vercel.app](https://himanshu-portfolio-website-sr22.vercel.app)
+
+## Deploy the refreshed frontend to Vercel
+
+Keep the existing Render service for the Flask API and database. Create a Vercel project from this repository with **Root Directory** set to **frontend**. Vercel detects Vite; use build command **npm run build** and output directory **dist**.
+
+Add this Vercel environment variable for Preview and Production:
+
+**VITE_API_URL=https://bebetter-umjn.onrender.com/api**
+
+This is a public API address, not a secret. Keep API keys and SECRET_KEY only in Render's backend environment. The frontend vercel.json sends app routes to the SPA entry point so direct links work.

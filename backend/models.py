@@ -179,3 +179,35 @@ class ChatMessage(db.Model):
             'content': self.content,
             'created_at': self.created_at.isoformat(),
         }
+
+class FutureSelfProfile(db.Model):
+    __tablename__ = 'future_self_profile'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, unique=True)
+    vision = db.Column(db.Text, nullable=False)
+    inspiration = db.Column(db.String(200), default='')
+    focus_areas = db.Column(db.JSON, default=list)
+    weekly_hours = db.Column(db.Float, default=3)
+    current_routine = db.Column(db.Text, default='')
+    constraints = db.Column(db.Text, default='')
+    coaching_style = db.Column(db.String(30), default='calm')
+    ai_personalization_consent = db.Column(db.Boolean, default=False, nullable=False)
+    plan = db.Column(db.JSON)
+    plan_updated_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=get_ist_now)
+    updated_at = db.Column(db.DateTime, default=get_ist_now, onupdate=get_ist_now)
+
+    def to_dict(self):
+        return {
+            'vision': self.vision,
+            'inspiration': self.inspiration or '',
+            'focus_areas': self.focus_areas or [],
+            'weekly_hours': self.weekly_hours,
+            'current_routine': self.current_routine or '',
+            'constraints': self.constraints or '',
+            'coaching_style': self.coaching_style or 'calm',
+            'ai_personalization_consent': self.ai_personalization_consent,
+            'plan': self.plan,
+            'plan_updated_at': self.plan_updated_at.isoformat() if self.plan_updated_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }

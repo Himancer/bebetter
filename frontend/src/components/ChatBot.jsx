@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../utils/api';
-import { Send, X, MessageCircle, Trash2 } from 'lucide-react';
+import { Send, X, MessageCircle, Trash2, Sparkles } from 'lucide-react';
 
 function TypingIndicator() {
   return (
@@ -29,14 +29,14 @@ export default function ChatBot() {
           setMessages([{
             id: 0,
             role: 'assistant',
-            content: "Yo! Main hoon BetterMe — tera future self. Jo transformation tu soch raha hai, maine complete kar liya hai. Ab bata, kya poochna hai? 💪",
+            content: "I can help you work toward the person you described. I don't know your future or have their memories, but I can help you find a practical next step. What's getting in the way today?",
           }]);
         } else {
           setMessages(msgs);
         }
       }).catch(console.error);
     }
-  }, [open]);
+  }, [open, messages.length]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -60,7 +60,7 @@ export default function ChatBot() {
       ]);
       setTyping(false);
       setMessages(prev => [...prev.filter(m => m.id !== userMsg.id), result.user, result.assistant]);
-    } catch (e) {
+    } catch {
       setTyping(false);
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
@@ -90,26 +90,23 @@ export default function ChatBot() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center pulse-glow z-40 transition-transform hover:scale-110"
-          style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)', boxShadow: '0 0 20px #00d4ff44' }}
+          className="chat-toggle fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center z-40 transition-transform hover:scale-110"
+          aria-label="Open BeBetter coach"
         >
-          <MessageCircle size={24} className="text-white" />
+          <MessageCircle size={23} />
         </button>
       )}
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-6 right-6 w-80 md:w-96 z-50 flex flex-col rounded-2xl overflow-hidden"
-          style={{ height: '500px', background: '#0a0a1a', border: '1px solid #00d4ff33', boxShadow: '0 0 30px #00d4ff11' }}>
+        <div className="chat-window fixed bottom-6 right-6 w-80 md:w-96 z-50 flex flex-col rounded-2xl overflow-hidden">
 
           {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800"
-            style={{ background: 'linear-gradient(135deg, #0f0f2a, #13132d)' }}>
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)' }}>⚡</div>
+          <div className="chat-header flex items-center gap-3 px-4 py-3 border-b border-gray-800">
+            <div className="chat-avatar w-9 h-9 rounded-full flex items-center justify-center text-lg"><Sparkles size={17} /></div>
             <div className="flex-1">
-              <div className="text-sm font-bold text-white">BetterMe</div>
-              <div className="text-xs text-cyan-400">Your Future Self</div>
+              <div className="text-sm font-bold text-white">BeBetter Coach</div>
+              <div className="chat-subtitle text-xs">Grounded growth support</div>
             </div>
             <button onClick={clearChat} className="text-gray-600 hover:text-gray-400 transition-colors p-1">
               <Trash2 size={14} />
@@ -124,18 +121,11 @@ export default function ChatBot() {
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'assistant' && (
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-1"
-                    style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)' }}>⚡</div>
+                  <div className="chat-avatar chat-avatar-small w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-1"><Sparkles size={12} /></div>
                 )}
-                <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                  msg.role === 'user'
-                    ? 'text-white rounded-tr-sm'
-                    : 'text-gray-200 rounded-tl-sm'
-                }`}
-                  style={msg.role === 'user'
-                    ? { background: 'linear-gradient(135deg, #7c3aed88, #7c3aed44)', border: '1px solid #7c3aed44' }
-                    : { background: '#0f0f2a', border: '1px solid #1a1a3e' }
-                  }>
+                <div className={`chat-message ${msg.role === 'user' ? 'chat-message-user' : 'chat-message-assistant'} max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                    msg.role === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'
+                  }`}>
                   {msg.content}
                 </div>
               </div>
@@ -143,9 +133,8 @@ export default function ChatBot() {
 
             {typing && (
               <div className="flex justify-start items-start">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-1"
-                  style={{ background: 'linear-gradient(135deg, #7c3aed, #00d4ff)' }}>⚡</div>
-                <div className="rounded-2xl rounded-tl-sm" style={{ background: '#0f0f2a', border: '1px solid #1a1a3e' }}>
+                <div className="chat-avatar chat-avatar-small w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-1"><Sparkles size={12} /></div>
+                <div className="chat-message chat-message-assistant rounded-2xl rounded-tl-sm">
                   <TypingIndicator />
                 </div>
               </div>
@@ -160,20 +149,16 @@ export default function ChatBot() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask your future self..."
+                placeholder="Ask about a hurdle or next step…"
                 rows={1}
-                className="flex-1 px-3 py-2 rounded-xl text-sm text-white placeholder-gray-600 resize-none outline-none"
-                style={{ background: '#0f0f2a', border: '1px solid #1a1a3e', maxHeight: '80px' }}
+                className="chat-input flex-1 px-3 py-2 rounded-xl text-sm resize-none outline-none"
+                style={{ maxHeight: '80px' }}
               />
               <button
                 onClick={send}
                 disabled={!input.trim() || sending}
-                className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                style={{
-                  background: input.trim() && !sending
-                    ? 'linear-gradient(135deg, #7c3aed, #00d4ff)'
-                    : '#1a1a3e',
-                }}
+                className="chat-send w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+                aria-label="Send message"
               >
                 <Send size={14} className="text-white" />
               </button>

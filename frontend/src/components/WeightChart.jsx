@@ -1,90 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
-} from 'recharts';
+﻿import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { Scale, ArrowRight } from 'lucide-react';
 import { api } from '../utils/api';
 
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-gray-900 border border-cyan-900 rounded-lg p-2 text-sm">
-        <p className="text-gray-400">{label}</p>
-        <p className="text-cyan-400 font-bold">{payload[0].value} kg</p>
-      </div>
-    );
-  }
-  return null;
-};
+const Tip = ({ active, payload, label }) => active && payload?.length ? <div style={{ background: '#111a22', border: '1px solid rgba(114,226,220,.22)', borderRadius: 10, padding: '9px 11px', fontSize: 11 }}><p style={{ color: 'var(--muted)', margin: '0 0 4px' }}>{label}</p><p style={{ color: 'var(--cyan)', fontWeight: 700, margin: 0 }}>{payload[0].value} kg</p></div> : null;
 
 export default function WeightChart({ compact = false }) {
-  const [data, setData] = useState([]);
-  const [milestones, setMilestones] = useState(null);
-
+  const [data, setData] = useState([]), [milestones, setMilestones] = useState(null), [failed, setFailed] = useState(false);
   useEffect(() => {
-    async function load() {
-      const [logs, ms] = await Promise.all([api.getWeightLogs(30), api.getWeightMilestones()]);
-      const chartData = logs.map(l => ({
-        date: l.date.slice(5),  // MM-DD
-        weight: l.weight,
-      }));
-      setData(chartData);
-      setMilestones(ms);
-    }
-    load().catch(console.error);
+    Promise.all([api.getWeightLogs(30), api.getWeightMilestones()])
+      .then(([logs, ms]) => { setData((logs || []).map(l => ({ date: l.date.slice(5), weight: l.weight }))); setMilestones(ms); })
+      .catch(e => { console.error(e); setFailed(true); });
   }, []);
-
-  const goalWeight = milestones?.goal_weight || 70;
-  const currentWeight = milestones?.current_weight;
-  const startWeight = milestones?.start_weight;
-  const lost = milestones?.total_lost || 0;
-  const remaining = milestones?.remaining || 0;
-
-  return (
-    <div className="space-y-4">
-      {/* Stats row */}
-      {milestones && (
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 rounded-lg bg-gray-900/50 border border-gray-800">
-            <div className="text-lg font-bold text-white font-mono">{startWeight}kg</div>
-            <div className="text-xs text-gray-500">Started</div>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-gray-900/50 border border-cyan-900/50">
-            <div className="text-lg font-bold text-cyan-400 font-mono">{currentWeight}kg</div>
-            <div className="text-xs text-gray-500">Current</div>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-gray-900/50 border border-gray-800">
-            <div className="text-lg font-bold text-purple-400 font-mono">{goalWeight}kg</div>
-            <div className="text-xs text-gray-500">Goal</div>
-          </div>
-        </div>
-      )}
-
-      {/* Progress */}
-      {milestones && (
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-green-400 font-mono">-{lost}kg lost 🔥</span>
-          <span className="text-orange-400 font-mono">{remaining}kg to go ⚔️</span>
-        </div>
-      )}
-
-      {/* Chart */}
-      <div style={{ height: compact ? 160 : 220 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1a1a3e" />
-            <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} />
-            <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} domain={['auto', 'auto']} />
-            <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={goalWeight} stroke="#7c3aed" strokeDasharray="4 4"
-              label={{ value: 'GOAL', fill: '#7c3aed', fontSize: 11, position: 'right' }} />
-            <Line
-              type="monotone" dataKey="weight" stroke="#00d4ff"
-              strokeWidth={2} dot={false}
-              activeDot={{ r: 5, fill: '#00d4ff', stroke: '#0a0a1a', strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
+  if (failed) return <div className="chart-empty" role="status"><div><Scale className="chart-empty-icon" size={21} /><div className="chart-empty-title">History could not load</div><div className="chart-empty-copy">Check your connection, then open the tracker to try again.</div><Link to="/weight" className="panel-link">Open weight tracker <ArrowRight size={12} /></Link></div></div>;
+  if (!data.length) return <div className="chart-empty"><div><Scale className="chart-empty-icon" size={21} /><div className="chart-empty-title">Your story starts with one entry</div><div className="chart-empty-copy">Track weight only if it supports your goals. You can also use BeBetter without it.</div><Link to="/weight" className="action-secondary" style={{ minHeight: 35, fontSize: 10 }}>Add an entry <ArrowRight size={12} /></Link></div></div>;
+  const goal = milestones?.goal_weight;
+  return <div className="space-y-4">
+    {milestones && <div className="weight-summary">
+      <div className="weight-summary-cell"><div className="weight-summary-value">{milestones.start_weight ?? '—'}{milestones.start_weight != null ? ' kg' : ''}</div><div className="weight-summary-label">First log</div></div>
+      <div className="weight-summary-cell"><div className="weight-summary-value" style={{ color: 'var(--cyan)' }}>{milestones.current_weight ?? '—'}{milestones.current_weight != null ? ' kg' : ''}</div><div className="weight-summary-label">Latest</div></div>
+      <div className="weight-summary-cell"><div className="weight-summary-value">{goal ?? '—'}{goal != null ? ' kg' : ''}</div><div className="weight-summary-label">Your goal</div></div>
+    </div>}
+    {milestones && (milestones.total_lost != null || milestones.remaining != null) && <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, color: 'var(--muted)', fontSize: 10, marginBottom: 8 }}>
+      {milestones.total_lost != null && <span>{milestones.total_lost > 0 ? milestones.total_lost + ' kg down' : milestones.total_lost < 0 ? Math.abs(milestones.total_lost) + ' kg up' : 'No change yet'}</span>}
+      {milestones.remaining != null && <span>{milestones.remaining} kg to your goal</span>}
+    </div>}
+    <div style={{ height: compact ? 160 : 220 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+      <CartesianGrid strokeDasharray="3 3" stroke="rgba(190,210,226,.08)" />
+      <XAxis dataKey="date" tick={{ fill: '#81909b', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'rgba(190,210,226,.12)' }} />
+      <YAxis tick={{ fill: '#81909b', fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
+      <Tooltip content={<Tip />} />{goal != null && <ReferenceLine y={goal} stroke="#b8a2ff" strokeDasharray="4 4" />}
+      <Line type="monotone" dataKey="weight" stroke="#72e2dc" strokeWidth={2.5} dot={{ r: 2, fill: '#72e2dc', strokeWidth: 0 }} activeDot={{ r: 5, fill: '#72e2dc', stroke: '#0b1117', strokeWidth: 2 }} />
+    </LineChart></ResponsiveContainer></div>
+  </div>;
 }

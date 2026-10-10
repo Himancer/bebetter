@@ -21,6 +21,8 @@ export default function DietTracker() {
     setDietData(data);
   }, []);
 
+  // The helper only updates state after its async API request settles.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadDiet().catch(console.error); }, [loadDiet]);
 
   const searchFoods = useCallback(async (q) => {
@@ -34,6 +36,8 @@ export default function DietTracker() {
   }, [searchQuery, searchFoods]);
 
   useEffect(() => {
+    // The helper only updates state after its async API request settles.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (showAdd) searchFoods('').catch(console.error);
   }, [showAdd, searchFoods]);
 

@@ -1,131 +1,44 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../utils/api';
-import { CheckCircle, Circle, Crown, Zap } from 'lucide-react';
+import { Check, Circle, Crown, Zap, ArrowRight } from 'lucide-react';
 
 export default function QuestBoard({ onXpGain }) {
   const [quests, setQuests] = useState({ daily: [], boss: [], progress: {} });
-  const [loading, setLoading] = useState(true);
-  const [completing, setCompleting] = useState(null);
-
+  const [loading, setLoading] = useState(true), [completing, setCompleting] = useState(null), [error, setError] = useState('');
   const fetchQuests = async () => {
-    try {
-      const data = await api.getQuests();
-      setQuests(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+    try { setQuests(await api.getQuests() || { daily: [], boss: [], progress: {} }); setError(''); }
+    catch (e) { setError('Missions are temporarily unavailable. Please try again in a moment.'); console.error(e); }
+    finally { setLoading(false); }
   };
-
+  // The helper only updates state after its async API request settles.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchQuests(); }, []);
-
-  const handleComplete = async (quest) => {
-    if (quest.completed || completing) return;
-    setCompleting(quest.id);
-    try {
-      const result = await api.completeQuest(quest.id);
-      await fetchQuests();
-      if (onXpGain) onXpGain(result.xp_result);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setCompleting(null);
-    }
+  const complete = async q => {
+    if (q.completed || completing) return;
+    setCompleting(q.id); setError('');
+    try { const result = await api.completeQuest(q.id); await fetchQuests(); if (onXpGain && result?.xp_result) onXpGain(result.xp_result); }
+    catch (e) { setError('Could not update this mission. Please try again.'); console.error(e); }
+    finally { setCompleting(null); }
   };
-
-  if (loading) return (
-    <div className="card">
-      <div className="text-gray-500 text-sm text-center py-4">Loading quests...</div>
-    </div>
-  );
-
-  const { daily, boss, progress } = quests;
-  const completedCount = progress.completed || 0;
-  const totalCount = progress.total || 0;
-
-  return (
-    <div className="card space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <span>📋</span> Daily Quests
-        </h3>
-        <span className="text-xs font-mono text-gray-400">
-          {completedCount}/{totalCount} CLEARED
-        </span>
-      </div>
-
-      {/* Progress bar */}
-      <div className="xp-bar">
-        <div className="xp-bar-fill"
-          style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }} />
-      </div>
-
-      {/* Daily quests */}
-      <div className="space-y-2">
-        {daily.map(quest => (
-          <QuestItem
-            key={quest.id}
-            quest={quest}
-            onComplete={handleComplete}
-            completing={completing === quest.id}
-          />
-        ))}
-      </div>
-
-      {/* Boss quest */}
-      {boss.length > 0 && (
-        <>
-          <div className="border-t border-gray-800 pt-3">
-            <h4 className="text-sm font-bold text-yellow-400 flex items-center gap-2 mb-2">
-              <Crown size={14} /> Weekly Boss Quest
-            </h4>
-            {boss.map(quest => (
-              <QuestItem key={quest.id} quest={quest} onComplete={handleComplete}
-                completing={completing === quest.id} isBoss />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
+  if (loading) return <div className="card panel-card" aria-live="polite"><div className="mission-empty">Preparing your missions…</div></div>;
+  const daily = quests.daily || [], boss = quests.boss || [], p = quests.progress || {}, done = p.completed || 0, total = p.total || 0;
+  return <div className="card panel-card">
+    <div className="panel-title-row"><h3 className="panel-title"><span style={{ color: 'var(--lime)' }}><Zap size={16} /></span> Daily quests</h3><span className="mission-count">{done} / {total} DONE</span></div>
+    <div className="xp-bar"><div className="xp-bar-fill" style={{ width: (total ? done / total * 100 : 0) + '%' }} /></div>
+    {error && <div className="mission-error" role="status" style={{ marginTop: 12 }}>{error}</div>}
+    {daily.length ? <div className="mission-list" style={{ marginTop: 13 }}>{daily.map(q => <QuestItem key={q.id} quest={q} complete={complete} busy={completing === q.id} />)}</div> : <div className="mission-empty">{error ? 'Your missions will appear when the connection returns.' : 'No missions yet. Check back soon for your next small win.'}</div>}
+    {boss.length > 0 && <div style={{ marginTop: 16 }}><div className="panel-title" style={{ color: 'var(--amber)', marginBottom: 9 }}><Crown size={14} /> Weekly challenge</div><div className="mission-list">{boss.map(q => <QuestItem key={q.id} quest={q} complete={complete} busy={completing === q.id} />)}</div></div>}
+    <div className="mission-progress">Log a workout or weight entry to make progress toward related quests.</div>
+    <Link to="/quests" className="panel-link" style={{ display: 'inline-block', marginTop: 13 }}>View quest details <ArrowRight size={12} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
+  </div>;
 }
-
-function QuestItem({ quest, onComplete, completing, isBoss }) {
-  return (
-    <div
-      onClick={() => onComplete(quest)}
-      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-        quest.completed
-          ? 'opacity-60 cursor-default'
-          : 'hover:bg-white/5 active:scale-[0.98]'
-      } ${isBoss ? 'border border-yellow-400/20' : 'border border-gray-800'}`}
-      style={isBoss && !quest.completed ? { borderColor: '#fbbf2422' } : {}}
-    >
-      <div className="flex-shrink-0">
-        {quest.completed
-          ? <CheckCircle size={20} className="text-green-400" />
-          : completing
-          ? <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-          : <Circle size={20} className="text-gray-600" />
-        }
-      </div>
-
-      <span className="text-xl flex-shrink-0">{quest.icon}</span>
-
-      <div className="flex-1 min-w-0">
-        <div className={`text-sm font-medium ${quest.completed ? 'line-through text-gray-500' : 'text-white'}`}>
-          {quest.title}
-        </div>
-        <div className="text-xs text-gray-600 truncate">{quest.description}</div>
-      </div>
-
-      <div className="flex items-center gap-1 flex-shrink-0">
-        <Zap size={10} className="text-yellow-400" />
-        <span className={`text-xs font-mono font-bold ${isBoss ? 'text-yellow-400' : 'text-cyan-400'}`}>
-          +{quest.xp_reward}
-        </span>
-      </div>
-    </div>
-  );
+function QuestItem({ quest, complete, busy }) {
+  const done = Boolean(quest.completed);
+  return <button type="button" onClick={() => complete(quest)} disabled={done || busy} className="mission-item" aria-label={(done ? 'Completed: ' : 'Complete mission: ') + quest.title}>
+    <span className={'mission-check' + (done ? ' done' : '')}>{done ? <Check size={17} /> : busy ? <span aria-label="Saving">…</span> : <Circle size={17} />}</span>
+    <span className="mission-emoji" aria-hidden="true">{quest.icon || '✦'}</span>
+    <span className="mission-copy"><span className="mission-name" style={{ display: 'block', textDecoration: done ? 'line-through' : 'none', opacity: done ? .66 : 1 }}>{quest.title}</span><span className="mission-description" style={{ display: 'block' }}>{quest.description}</span></span>
+    <span className="mission-reward"><Zap size={10} style={{ display: 'inline', verticalAlign: 'middle' }} /> +{quest.xp_reward}</span>
+  </button>;
 }
