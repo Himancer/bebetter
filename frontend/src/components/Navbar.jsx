@@ -1,7 +1,6 @@
-﻿import React from 'react';
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Scale, Dumbbell, Utensils, Scroll, LogOut, Sparkles, Compass } from 'lucide-react';
-import PlayerIdentity from './PlayerIdentity';
 
 const ITEMS = [
   { to: '/', label: 'Overview', icon: LayoutDashboard },
@@ -19,7 +18,7 @@ export default function Navbar() {
     <nav className="system-sidebar hidden md:flex flex-col">
       <div className="system-brand"><span className="brand-mark"><Sparkles size={19} /></span><div><div className="brand-title">beBetter</div><div className="brand-subtitle">Your personal growth system</div></div></div>
       <div className="system-nav">{ITEMS.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} end={to === '/'} className={itemClass}>{React.createElement(Icon, { size: 17 })}{label}</NavLink>)}</div>
-      <div className="sidebar-bottom"><PlayerIdentity compact /><div className="sidebar-quote">Small actions. Honest progress. A stronger version of you.</div><button type="button" onClick={logout} className="logout-button"><LogOut size={15} /> Sign out</button></div>
+      <div className="sidebar-bottom"><div className="sidebar-quote">Small actions. Honest progress. A stronger version of you.</div><button type="button" onClick={logout} className="logout-button"><LogOut size={15} /> Sign out</button></div>
     </nav>
     <nav className="mobile-nav md:hidden" aria-label="Main navigation"><div className="mobile-nav-inner">
       {ITEMS.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} end={to === '/'} className={itemClass} aria-label={label}>{React.createElement(Icon, { size: 19 })}<span>{label}</span></NavLink>)}

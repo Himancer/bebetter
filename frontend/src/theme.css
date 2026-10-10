@@ -368,3 +368,175 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 @media (min-width: 681px) {
   .dashboard-topline > .player-identity { display: none; }
 }
+
+
+/* Persistent profile toolbar and selectable color themes. */
+:root[data-theme="hunter"] {
+  --accent: #6fc5ef;
+  --accent-strong: #9eddf7;
+  --accent-hover: #b8e8fb;
+  --accent-rgb: 111, 197, 239;
+  --accent-soft: rgba(111, 197, 239, .09);
+}
+:root[data-theme="violet"] {
+  --accent: #b49aff;
+  --accent-strong: #d1bdff;
+  --accent-hover: #e1d5ff;
+  --accent-rgb: 180, 154, 255;
+  --accent-soft: rgba(180, 154, 255, .10);
+  --cyan: #b49aff;
+  --lime: #d1bdff;
+  --color-neon-blue: #b49aff;
+  --color-neon-purple: #bda7ff;
+  --color-neon-green: #d1bdff;
+}
+:root[data-theme="ember"] {
+  --accent: #e7a568;
+  --accent-strong: #f3c18f;
+  --accent-hover: #ffdab5;
+  --accent-rgb: 231, 165, 104;
+  --accent-soft: rgba(231, 165, 104, .10);
+  --cyan: #e7a568;
+  --lime: #f3c18f;
+  --color-neon-blue: #e7a568;
+  --color-neon-purple: #d39b79;
+  --color-neon-green: #f3c18f;
+}
+:root[data-theme] body {
+  background: radial-gradient(ellipse at 82% -14%, rgba(var(--accent-rgb), .13), transparent 40rem), #080d15;
+}
+.app-layout { min-height: 100dvh; }
+.app-content { overflow-x: clip; }
+.system-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sidebar-bottom { margin-top: auto; padding-top: 16px; }
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  min-height: 72px;
+  margin: -28px calc(clamp(18px, 4vw, 56px) * -1) 24px;
+  padding: 10px clamp(18px, 4vw, 56px);
+  border-bottom: 1px solid var(--line);
+  background: rgba(8, 13, 21, .88);
+  backdrop-filter: blur(16px);
+}
+.app-toolbar .player-identity { width: 250px; max-width: 250px; }
+.theme-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--accent-strong);
+  background: rgba(255, 255, 255, .025);
+}
+.theme-picker select {
+  max-width: 142px;
+  border: 0 !important;
+  outline: 0;
+  color: var(--ink) !important;
+  background: transparent !important;
+  font: 500 11px 'Sora', sans-serif;
+  cursor: pointer;
+}
+.theme-picker option { color: #eaf1f7; background: #101925; }
+:root[data-theme] .system-nav a.active {
+  color: var(--accent-strong);
+  border-color: rgba(var(--accent-rgb), .18);
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+:root[data-theme] .mobile-nav a.active,
+:root[data-theme] .brand-mark,
+:root[data-theme] .player-identity-avatar,
+:root[data-theme] .future-teaser-icon,
+:root[data-theme] .quest-section-icon,
+:root[data-theme] .quest-progress-emblem {
+  color: var(--accent-strong);
+  border-color: rgba(var(--accent-rgb), .28);
+  background-color: var(--accent-soft);
+}
+:root[data-theme] .chat-toggle,
+:root[data-theme] .chat-send,
+:root[data-theme] .future-primary,
+:root[data-theme] .action-primary,
+:root[data-theme] .player-identity-edit-actions button[type='submit'] {
+  color: #10151b !important;
+  border-color: var(--accent-strong) !important;
+  background: var(--accent-strong) !important;
+}
+:root[data-theme] .chat-toggle:hover,
+:root[data-theme] .future-primary:hover:not(:disabled),
+:root[data-theme] .action-primary:hover {
+  background: var(--accent-hover) !important;
+}
+:root[data-theme] .chat-avatar,
+:root[data-theme] .chat-send:not(:disabled) { color: #10151b; background: var(--accent-strong); }
+:root[data-theme] .chat-subtitle,
+:root[data-theme] .quest-reward,
+:root[data-theme] .quest-progress-foot span,
+:root[data-theme] .quest-rank-path svg,
+:root[data-theme] .future-plan-label,
+:root[data-theme] .future-eyebrow,
+:root[data-theme] .future-section-title > svg,
+:root[data-theme] .text-cyan-400,
+:root[data-theme] .text-sky-400,
+:root[data-theme] .text-blue-400 {
+  color: var(--accent-strong) !important;
+}
+:root[data-theme] .chat-message-user {
+  border-color: rgba(var(--accent-rgb), .24);
+  background: var(--accent-soft);
+}
+:root[data-theme] .app-content input:focus,
+:root[data-theme] .app-content textarea:focus,
+:root[data-theme] .app-content select:focus { border-color: rgba(var(--accent-rgb), .56) !important; }
+:root[data-theme] button:focus-visible,
+:root[data-theme] a:focus-visible,
+:root[data-theme] input:focus-visible,
+:root[data-theme] select:focus-visible { outline-color: var(--accent); }
+.chat-message { white-space: normal; overflow-wrap: anywhere; }
+.chat-message p { margin: 0; }
+.chat-message p + p,
+.chat-message p + ul,
+.chat-message p + ol,
+.chat-message ul + p,
+.chat-message ol + p { margin-top: 9px; }
+.chat-message ul,
+.chat-message ol { display: grid; gap: 5px; margin: 0; padding-left: 19px; }
+.chat-message h4 { margin: 0 0 6px; color: var(--accent-strong); font-size: 13px; }
+.chat-message code { padding: 1px 4px; border: 1px solid var(--line); border-radius: 4px; color: var(--accent-strong); background: rgba(255, 255, 255, .04); }
+@media (max-width: 680px) {
+  .app-toolbar {
+    min-height: 62px;
+    margin: -21px -15px 20px;
+    padding: 8px 12px;
+    gap: 7px;
+  }
+  .app-toolbar .player-identity { width: auto; min-width: 0; max-width: 190px; padding: 5px 6px; gap: 7px; }
+  .app-toolbar .player-identity-copy small { display: none; }
+  .app-toolbar .player-identity-copy strong { font-size: 10px; }
+  .app-toolbar .player-identity-copy > span { font-size: 9px; }
+  .app-toolbar .player-identity-avatar { flex-basis: 29px; width: 29px; height: 29px; font-size: 10px; }
+  .app-toolbar .player-identity-edit-button { flex-basis: 24px; width: 24px; height: 24px; }
+  .theme-picker { gap: 5px; min-height: 36px; padding: 0 7px; }
+  .theme-picker svg { width: 14px; }
+  .theme-picker select { max-width: 105px; font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-toolbar, .theme-picker { scroll-behavior: auto; }
+}

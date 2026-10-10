@@ -1,8 +1,9 @@
-﻿import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import FutureSelfGate from './components/FutureSelfGate';
 import Navbar from './components/Navbar';
 import ChatBot from './components/ChatBot';
+import AppToolbar from './components/AppToolbar';
 import ErrorBoundary from './components/ErrorBoundary';
 import './dashboard.css';
 import './theme.css';
@@ -29,10 +30,20 @@ const ProtectedRoute = ({ children }) => {
 };
 
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('bebetter-theme');
+    return ['hunter', 'violet', 'ember'].includes(savedTheme) ? savedTheme : 'hunter';
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('bebetter-theme', theme);
+  }, [theme]);
+
   return <BrowserRouter><ErrorBoundary><Suspense fallback={<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: 'var(--muted)', background: '#0b1117' }}>Loading BeBetter…</div>}>
     <Routes>
       <Route path="/login" element={<AuthPage />} />
-      <Route path="/*" element={<ProtectedRoute><div className="app-layout flex min-h-screen" style={{ background: '#0a0a1a' }}><Navbar /><main className="app-content flex-1 p-4 md:p-6 pb-20 md:pb-6 overflow-x-hidden"><Routes>
+      <Route path="/*" element={<ProtectedRoute><div className="app-layout flex min-h-screen"><Navbar /><main className="app-content flex-1 p-4 md:p-6 pb-20 md:pb-6"><AppToolbar theme={theme} onThemeChange={setTheme} /><Routes>
         <Route path="/" element={<FutureSelfGate><Dashboard /></FutureSelfGate>} />
         <Route path="/future-self" element={<FutureSelfPage />} />
         <Route path="/weight" element={<FutureSelfGate><WeightTracker /></FutureSelfGate>} />

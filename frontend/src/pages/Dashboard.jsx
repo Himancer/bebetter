@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { usePlayer } from '../hooks/usePlayer';
@@ -9,7 +9,6 @@ import WeightChart from '../components/WeightChart';
 import XPNotification from '../components/XPNotification';
 import { ArrowRight, Activity, Sparkles, Compass } from 'lucide-react';
 import { api } from '../utils/api';
-import PlayerIdentity from '../components/PlayerIdentity';
 
 export default function Dashboard() {
   const { player, stats, loading, refetch } = usePlayer();
@@ -24,7 +23,7 @@ export default function Dashboard() {
 
   return <div className="dashboard-shell">
     {xpNotif && <XPNotification xpResult={xpNotif} onDone={() => setXpNotif(null)} />}
-    <div className="dashboard-topline"><div className="eyebrow"><span className="status-dot" /> SYSTEM STATUS</div><PlayerIdentity compact /></div>
+    <div className="dashboard-topline"><div className="eyebrow"><span className="status-dot" /> SYSTEM STATUS</div></div>
     <section className="dashboard-hero">
       <div className="hero-copy"><div className="hero-kicker">Welcome back, {name}</div><h1 className="hero-title">Your next level starts <em>today.</em></h1><p className="hero-text">Build strength, consistency, and better habits one small promise at a time. Your progress is yours to define.</p>
         <div className="hero-actions"><Link className="action-primary" to="/workout"><Activity size={15} /> Log a workout <ArrowRight size={14} /></Link><Link className="action-secondary" to="/quests">See today’s missions</Link></div>

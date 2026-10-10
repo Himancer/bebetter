@@ -2,6 +2,76 @@ import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../utils/api';
 import { Send, X, MessageCircle, Trash2, Sparkles } from 'lucide-react';
 
+function renderInline(text, prefix) {
+  const tokens = text.split(/(\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*|_[^_]+_|\x60[^\x60]+\x60)/g);
+  return tokens.map((token, index) => {
+    const key = `${prefix}-${index}`;
+    if ((token.startsWith('**') && token.endsWith('**')) || (token.startsWith('__') && token.endsWith('__'))) {
+      return <strong key={key}>{token.slice(2, -2)}</strong>;
+    }
+    if ((token.startsWith('*') && token.endsWith('*')) || (token.startsWith('_') && token.endsWith('_'))) {
+      return <em key={key}>{token.slice(1, -1)}</em>;
+    }
+    if (token.startsWith('`') && token.endsWith('`')) {
+      return <code key={key}>{token.slice(1, -1)}</code>;
+    }
+    return token;
+  });
+}
+
+function renderCoachMessage(content) {
+  const lines = String(content || '').replace(/\r\n?/g, '\n').replace(/\\([*_#`])/g, '$1').trim().split('\n');
+  const blocks = [];
+  let paragraph = [];
+  let listType = null;
+  let listItems = [];
+
+  const flushParagraph = () => {
+    if (!paragraph.length) return;
+    blocks.push(<p key={`p-${blocks.length}`}>{paragraph.map((line, index) => <React.Fragment key={index}>{index > 0 && <br />}{renderInline(line, `p-${blocks.length}-${index}`)}</React.Fragment>)}</p>);
+    paragraph = [];
+  };
+  const flushList = () => {
+    if (!listItems.length) return;
+    const List = listType === 'ordered' ? 'ol' : 'ul';
+    blocks.push(<List key={`list-${blocks.length}`}>{listItems.map((item, index) => <li key={index}>{renderInline(item, `list-${blocks.length}-${index}`)}</li>)}</List>);
+    listType = null;
+    listItems = [];
+  };
+
+  lines.forEach(rawLine => {
+    const line = rawLine.trim();
+    if (!line) {
+      flushParagraph();
+      flushList();
+      return;
+    }
+    const heading = /^(#{1,3})\s+(.+)$/.exec(line);
+    if (heading) {
+      flushParagraph();
+      flushList();
+      blocks.push(<h4 key={`h-${blocks.length}`}>{renderInline(heading[2], `h-${blocks.length}`)}</h4>);
+      return;
+    }
+    const bullet = /^[-*•]\s+(.+)$/.exec(line);
+    const ordered = /^\d+[.)]\s+(.+)$/.exec(line);
+    if (bullet || ordered) {
+      flushParagraph();
+      const nextType = ordered ? 'ordered' : 'unordered';
+      if (listType && listType !== nextType) flushList();
+      listType = nextType;
+      listItems.push((bullet || ordered)[1]);
+      return;
+    }
+    flushList();
+    paragraph.push(rawLine);
+  });
+
+  flushParagraph();
+  flushList();
+  return blocks;
+}
+
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1 px-3 py-2">
@@ -29,7 +99,7 @@ export default function ChatBot() {
           setMessages([{
             id: 0,
             role: 'assistant',
-            content: "I can help you work toward the person you described. I don't know your future or have their memories, but I can help you find a practical next step. What's getting in the way today?",
+            content: "Hey, good to see you. What's on your mind today? We can work through one practical next step together.",
           }]);
         } else {
           setMessages(msgs);
@@ -65,7 +135,7 @@ export default function ChatBot() {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: 'assistant',
-        content: "Bro, connection issue. Try again.",
+        content: "I couldn't reach the coach just now. Please try again in a moment.",
       }]);
     } finally {
       setSending(false);
@@ -126,7 +196,7 @@ export default function ChatBot() {
                 <div className={`chat-message ${msg.role === 'user' ? 'chat-message-user' : 'chat-message-assistant'} max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'
                   }`}>
-                  {msg.content}
+                  {renderCoachMessage(msg.content)}
                 </div>
               </div>
             ))}

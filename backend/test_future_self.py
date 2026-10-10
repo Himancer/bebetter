@@ -104,6 +104,21 @@ class FutureSelfApiTests(unittest.TestCase):
             payload = mock_response.call_args.kwargs['json']
             self.assertIn(self.profile['vision'], payload['messages'][1]['content'])
 
+    def test_chat_uses_recent_context_and_conversational_coach_prompt(self):
+        with patch('routes.chat.GROQ_API_KEY', 'test-key'), patch('routes.chat.requests.post') as mock_response:
+            mock_response.return_value.json.return_value = {'choices': [{'message': {'content': 'Let’s make tonight manageable.'}}]}
+            for message in ('hey', 'I have exams this week', 'What should I focus on tonight?'):
+                response = self.client.post('/api/chat', json={'message': message}, headers=self.headers)
+                self.assertEqual(response.status_code, 200)
+
+            payload = mock_response.call_args.kwargs['json']
+            self.assertEqual(payload['messages'][-1]['content'], 'What should I focus on tonight?')
+            self.assertIn('I have exams this week', str(payload['messages']))
+            self.assertIn('Let’s make tonight manageable.', str(payload['messages']))
+            self.assertIn('not a survey', payload['messages'][0]['content'])
+            self.assertIn('at most one relevant follow-up question', payload['messages'][0]['content'])
+            self.assertEqual(payload['max_tokens'], 640)
+
     def test_opt_in_is_persisted_for_future_personalization(self):
         self.profile['ai_personalization_consent'] = True
         response = self.client.put('/api/future-self/profile', json=self.profile, headers=self.headers)
